@@ -47,7 +47,7 @@
 # 課題
 
 - 必要な言語の学習（Udemy一周してあとは実践）
-- dockerで環境構築（Next.js,Nest.js,Graphql,Prisma）DBはSUPABASE（postgress）
+- dockerで環境構築（Next.js,Nest.js,Prisma）DBはSUPABASE（postgress）
 - 外部APIを使うためのアカウントの作成
 - MVPの検討 （まずは大阪からなど、大阪駅　大阪府のランダムなピンを指す機能から作る。）
 - ER図の作成
@@ -96,7 +96,7 @@
 
 # 各テーブルの詳細設計
 
-### 0. `Auth users`（Supabase Authと連携）
+### 1. `Auth users`（Supabase Authと連携）
 
 ログイン（Google、Apple、Email等）に必要なユーザー認証の基本情報を保持。
 
@@ -106,7 +106,7 @@
 | `provider` | TEXT | Supabaseが自動設定（例：google、apple、email） |
 | `email` | TEXT | メールアドレス（Authから取得） |
 
-### 1. `users`（アプリ管理用）
+### 2. `users`（アプリ管理用）
 
 | フィールド名 | 型 | 説明 |
 | --- | --- | --- |
@@ -118,7 +118,7 @@
 
 ---
 
-### 2. `adventures`
+### 3. `adventures`
 
 「1回の旅（冒険）」を一意に識別し、開始・終了、状態を管理する。
 
@@ -133,7 +133,7 @@
 
 ---
 
-### 3. `locations`
+### 4. `locations`
 
 位置情報の取得、標高の取得、電波状況の取得するデータを受け取る
 
@@ -149,7 +149,7 @@
 
 ---
 
-### 4. `routes`
+### 5. `routes`
 
 経路情報の登録
 
@@ -164,7 +164,7 @@
 
 ---
 
-### 5. `schedules`
+### 6. `schedules`
 
 | フィールド名 | 型 | 説明 |
 | --- | --- | --- |
@@ -177,7 +177,7 @@
 
 ---
 
-### 6. `emergency_contacts`
+### 7. `emergency_contacts`
 
 | フィールド名 | 型 | 説明 |
 | --- | --- | --- |
@@ -189,7 +189,7 @@
 
 ---
 
-### 7. `escape_routes`
+### 8. `escape_routes`
 
 | フィールド名 | 型 | 説明 |
 | --- | --- | --- |
@@ -201,7 +201,7 @@
 
 ---
 
-### 8. `logs`（分析・学習用）
+### 9. `logs`（分析・学習用）
 
 | フィールド名 | 型 | 説明 |
 | --- | --- | --- |
@@ -213,7 +213,7 @@
 
 ---
 
-### 8. `checkpoints`（）
+### 10. `checkpoints`（）
 
 | フィールド名 | 型 | 説明 |
 | --- | --- | --- |
@@ -242,7 +242,7 @@
 - タイルマップ（Leaflet.js + 事前キャッシュ）
 
 # ER図
-![Uploading geo_guesser_徒歩アプリER図５.drawio.svg…]()
+![ER図](./ER-v5.drawio.svg)
 
 
 
