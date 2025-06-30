@@ -242,8 +242,9 @@
 - タイルマップ（Leaflet.js + 事前キャッシュ）
 
 # ER図
+![Uploading geo_guesser_徒歩アプリER図５.drawio.svg…]()
 
-![geo guesser　徒歩アプリER図５.drawio.svg](Geo%20Walker%20206a1f696ef2803f9f67fdd97327033b/geo_guesser_%E5%BE%92%E6%AD%A9%E3%82%A2%E3%83%95%E3%82%9A%E3%83%AAER%E5%9B%B3%EF%BC%95.drawio.svg)
+
 
 # 画面遷移図
 
