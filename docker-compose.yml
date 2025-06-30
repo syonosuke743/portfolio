@@ -1,0 +1,20 @@
+services:
+  front:
+    build:
+      context: ./front
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    depends_on:
+      - back
+
+  back:
+    build:
+      context: ./back
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}

@@ -1,0 +1,14 @@
+# ルートだけでなく front, back 内の node_modules も除外される
+**/node_modules/
+
+# ルート、front、backの.envファイルも除外
+**/.env
+
+# Next.js のビルドフォルダ
+.next/
+
+# Nest.js のビルドフォルダ（例）
+dist/
+
+# ログファイル
+*.log

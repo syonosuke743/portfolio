@@ -1,0 +1,14 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL") // ← ここは実際に設定している環境変数名に合わせる
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model User {
+    id    Int     @id @default(autoincrement())
+    email String  @unique
+    name  String?
+}
