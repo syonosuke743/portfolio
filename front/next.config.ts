@@ -1,7 +1,9 @@
-import type { NextConfig } from "next";
+//macOSではボリュームマウントが遅く、ホットリロードが効きづらい場合がある
 
-const nextConfig: NextConfig = {
-  /* config options here */
+const nextConfig = {
 };
 
 export default nextConfig;
+
+
+

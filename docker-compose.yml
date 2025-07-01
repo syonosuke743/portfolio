@@ -4,6 +4,9 @@ services:
       context: ./front
     ports:
       - "3000:3000"
+    volumes:
+      - ./front:/app:cached
+      - /app/node_modules
     environment:
       - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
@@ -13,6 +16,9 @@ services:
   back:
     build:
       context: ./back
+    volumes:
+      - ./back:/app
+      - /app/node_modules
     ports:
       - "3001:3001"
     environment:
