@@ -1,15 +1,17 @@
 datasource db {
     provider = "postgresql"
-    url      = env("DATABASE_URL") // ← ここは実際に設定している環境変数名に合わせる
+    url      = env("DATABASE_URL")
 }
 
 generator client {
     provider = "prisma-client-js"
+    // binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 model Todo {
-    id        Int      @id @default(autoincrement())
-    title     String
-    completed Boolean  @default(false)
-    createAt  DateTime @default(now())
+    id          Int      @id @default(autoincrement())
+    title       String
+    description String
+    completed   Boolean  @default(false)
+    createdAt   DateTime @default(now())
 }
