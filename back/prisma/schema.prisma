@@ -9,7 +9,122 @@ generator client {
 }
 
 model Users {
-    id           Int     @id @default(autoincrement())
-    email        String  @unique
-    passwordHash String?
+    id           Int      @id @default(autoincrement())
+    email        String
+    passwordHash String?  @map("password_hash")
+    provider     String?
+    createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+    adventures Adventure[]
+    // Log        Log
+
+    @@map("users")
 }
+
+model Adventure {
+    id        Int      @id @default(autoincrement())
+    startTime DateTime @default(now()) @map("start_time") @db.Timestamptz(3)
+    endTime   DateTime @default(now()) @map("end_time") @db.Timestamptz(3)
+    status    String
+
+    userId Int   @map("user_id")
+    user   Users @relation(fields: [userId], references: [id])
+
+    locationId Int       @unique @map("location_id")
+    location   Locations @relation(fields: [locationId], references: [id])
+
+    routes    Routes[]
+    schedules Schedules[]
+    // EscapeRoutes EscapeRoutes[]
+
+    @@map("adventures")
+}
+
+model Locations {
+    id           Int      @id @default(autoincrement())
+    localName    String?  @map("local_name")
+    latitude     Float
+    longitude    Float
+    type         String
+    elevation    Int
+    isSingleSafe Boolean? @map("is_single_safe")
+
+    adventure Adventure?
+    Schedules Schedules[]
+
+    @@map("locations")
+}
+
+model Routes {
+    id            Int   @id @default(autoincrement())
+    routesJson    Json  @map("routes_json")
+    totalDistance Float @map("total_distance")
+    totalDuration Int   @map("total_duration")
+    elevatorGain  Float @map("elevator_gain")
+
+    adventureId Int       @map("adventure_id")
+    adventure   Adventure @relation(fields: [adventureId], references: [id])
+
+    @@map("routes")
+}
+
+model Schedules {
+    id            Int      @id @default(autoincrement())
+    arrivalTime   DateTime @default(now()) @map("arrival_time") @db.Timestamptz(3)
+    departureTime DateTime @default(now()) @map("departure_time") @db.Timestamptz(3)
+
+    adventureId Int       @map("adventure_id")
+    adventure   Adventure @relation(fields: [adventureId], references: [id])
+
+    locationId Int       @map("location_id")
+    location   Locations @relation(fields: [locationId], references: [id])
+
+    @@map("schedules")
+}
+
+model CheckPoints {
+    id          Int      @id @default(autoincrement())
+    description String?  @db.VarChar(255)
+    latitude    Float
+    longitude   Float
+    sequence    Int
+    required    Boolean  @default(true)
+    createAt    DateTime @default(now()) @db.Timestamptz(3)
+    updateAt    DateTime @default(now()) @db.Timestamptz(3)
+}
+
+model Prefecture {
+    id        Int     @id @default(autoincrement())
+    code      Int
+    name      String
+    geometry  Json
+    isEnabled Boolean @map("is_enabled")
+}
+
+//コア機能を開発後、余裕があったら実装
+
+// model EmergencyContacts {
+//     id    Int     @id @default(autoincrement())
+//     name  String
+//     phone String
+//     note  String? @db.VarChar(255)
+// }
+
+// model EscapeRoutes {
+//     id              Int    @id @default(autoincrement())
+//     escapeRouteJson Json   @map("escape_routes_json")
+//     type            String
+//     estimatedTime   Int    @map("estimated_time")
+
+//     adventureId Int       @map("adventure_id")
+//     adventure   Adventure @relation(fields: [adventureId], references: [id])
+// }
+// model Log {
+//     id        Int      @id @default(autoincrement())
+//     eventType String   @map("event_time")
+//     timeStamp DateTime @map("time_stamp") @db.Timestamptz(3)
+//     details   Json
+
+//     userId Int   @map("user_id")
+//     user   Users @relation(fields: [userId], references: [id])
+// }
