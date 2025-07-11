@@ -24,7 +24,7 @@ services:
       - db
 
   db:
-    image: postgres:15
+    image: postgis/postgis:15-3.3 #PostGisを含むPostgreSQL公式イメージ (安定版)
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -34,6 +34,7 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
   pgdata:
