@@ -124,10 +124,10 @@
 | カラム名 | 型 | 説明 |
 | --- | --- | --- |
 | `id` | UUID | 主キー |
-| `local_name` | TEXT | 名称（APIで取得） |
+| `local_name` | STRING | 名称（APIで取得） |
 | `latitude`  | FLOAT | 緯度 |
 | `longitude` | FLOAT | 経度 |
-| `type` | TEXT | `park`, `scenic_spot`, `shrine`, etc. |
+| `type` | STRING | `park`, `scenic_spot`, `shrine`, etc. |
 | `is_accessible` | BOOLEAN | 立ち入り可能か |
 | `is_watar_area` | BOOLEAN | 水域か |
 
@@ -141,7 +141,7 @@
 | `adventure_id` | UUID | 外部キー |
 | `location_id` | UUID | 外部キー |
 | `sequence` | INTEGER | 何番目の地点か（0=出発地, 1=スポット1, ...） |
-| `type_used` | TEXT | 候補群の中から選ばれた type |
+| `type_used` | STRING | 候補群の中から選ばれた type |
 | `selection_type` | TEXT | `user_selected`, `random_fallback`, `auto_substituted` など
  |
 
@@ -167,7 +167,7 @@
 | `code` | UUID | 外部キー |
 | `name` | STRING |  |
 | `geometry` | FLOAT | postgis |
-| `created_at` | DAYTIME |  |
+| `created_at` | TIMESTAMP |  |
 
 ---
 
