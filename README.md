@@ -181,7 +181,7 @@
 
 # ER図
 
-![ER図v9.drawio.svg](Geo%20Walker%20206a1f696ef2803f9f67fdd97327033b/ER%E5%9B%B3v9.drawio.svg)
+![ER図](./readme-image/ER図v9.drawio.svg)
 
 # 画面遷移図
 
