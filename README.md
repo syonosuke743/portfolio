@@ -2,10 +2,18 @@
 
 # エレベーターピッチ
 
-知らない街を冒険したいけど、計画が面倒？このアプリなら、ボタンひとつでランダムな目的地を提案し、徒歩ルートと予定表を自動生成します。liefletMapと無料APIを活用し、急な坂道や電波の通じない山道を避け、安全でワクワクする旅を設計。個人旅行者に新しい発見を届ける。
-
+知らない街を冒険したいけど、計画が面倒？このアプリなら、ボタンひとつでランダムな目的地を生成し、ルートと予定表を自動生成します。個人旅行者にわくわくする旅と新しい発見を届ける。
 
 ---
+
+# 競合アプリとの差別化ポイント
+
+| 項目 | 内容 |
+| --- | --- |
+| **1. ランダム目的地提案機能** | Google Mapsなど従来のナビアプリはユーザー主導の目的地設定が基本だが、本アプリは「未知との遭遇」を重視し、ランダム提案が中心。 |
+| **2. 徒歩ルートに特化** | 観光・冒険向けに徒歩と自転車向け。細かい地形を考慮し、安全性にも配慮。 |
+| **3. UI/UX演出で冒険心を刺激** | 目的地決定時に地図が「ズームイン」していく演出など、遊び心のある演出でワクワク感を演出。 |
+| **4. 低コスト・個人向け設計** | lieflet.js、無料のAPI、postgisなどなるべく費用がかからない外部サービスを利用しコストカット |
 
 ---
 
@@ -13,59 +21,52 @@
 
 | API名 / 技術 | 利用目的 | 無料プランの有無 / 備考 |
 | --- | --- | --- |
-| **Google Directions API** | 徒歩ルート生成、安全な道を自動選定 | あり（制限あり） |
-| **Google Places API** | ランダム目的地候補の質向上（観光地・穴場など） | あり（使用量制限） |
-| **Google Geocoding API** | 緯度経度 ⇄ 住所変換（目的地の地名表示） | あり（逆ジオコーディング） |
-| **OpenStreetMap + Overpass API** | 無料の地図/地点抽出。都市部・幹線道路から近いスポット選定に活用 |  完全無料 |
 | **OpenCelliD API** | 基地局位置データから電波状況の判定（圏外回避） | 無料（APIキー必要） |
 | **Open-Elevation API**（または Mapbox Terrain-RGB） | 標高データ取得。坂道・山道を避けるルートの安全性評価 | あり（無料オプション多数） |
-| **Supabase（Auth / Database / Storage API）** | ユーザー認証、緊急連絡先・ルート・設定の保存 |  無料プランあり（高機能） |
-| **IndexedDB（ブラウザAPI）** | ルート・地図・スケジュールのオフライン保存 | ブラウザ標準機能、PWA対応可 |
 | **Leaflet.js + 地図タイルAPI（Mapbox / OSMなど）** | 軽量な地図描画。ズーム演出やオフライン利用にも適す | 無料・Mapboxは上限あり |
 | **Nominatim（OSMジオコーディング）** | 緯度経度 ⇄ 住所変換の無料代替（Google API節約） | 無料（アクセス制限あり） |
 | **OpenWeatherMap API**（オプション） | ルート付近の天気情報提供 | あり（無料プラン） |
 | **PWA（Service Worker / Web Manifest）** | アプリのオフライン動作・スマホインストール対応 | ブラウザ標準対応 |
+| **Postgis** | 水域、軍の土地、崖などに生成されないように地理情報を取得 | 無料 |
 
 ## 追加機能（将来的な差別化拡張）
 
 | 機能 | 利用API候補 |
 | --- | --- |
-| **体力消費シミュレーション**（高低差・距離から） | OpenElevation + Google Fit連携（任意） |
-| **冒険ログ保存・共有** | Supabase + SNS連携（Twitter API, Instagram APIなど） |
+| **体力消費シミュレーション**（高低差・距離から） | OpenElevation + Google Fit連携 |
+| **冒険ログ保存・共有** | SNS連携（Twitter API, Instagram APIなど） |
 | **AIによる冒険テーマの提案** | ChatGPT API or OpenAI Function Calling |
 
 # 課題
 
 - 必要な言語の学習（Udemy一周してあとは実践）
-- dockerで環境構築（Next.js,Nest.js,Prisma）DBはSUPABASE（postgress）
+- postgisの勉強
 - 外部APIを使うためのアカウントの作成
-- MVPの検討 （まずは大阪からなど、大阪駅　大阪府のランダムなピンを指す機能から作る。）
-- ER図の作成
-- AWSのEC2にAmazonLinux(ubuntu)開発環境を置く（AWSのサインアップエラーが解決しなければGCPに移行）
-- ワイヤーフレームをfigmaで作る
-- 認証アカウントのみ作成可能。
+- APIの呼び出し順をどうするか
+- トランザクション管理をどうするか
+- MVP（まずは現在地から〜km範囲のランダムなピンを指す機能から作る。）
 - インフラ構成図の作成
-- githubにリポジトリ作成
+- 使用技術の調査
 
 # 機能要件
 
-| No. | カテゴリ | 要件内容 |
-| --- | --- | --- |
-| F1 | ランダム目的地生成 | 現在地または指定地点から一定範囲内の地点をランダムに選出する（安全性や電波状況、都市部に近いなどの条件付き） |
-| F2 | 目的地の情報表示 | 選ばれた目的地の名称、簡単な説明、写真（可能であれば）、現在地からの距離などを表示 |
-| F3 | 徒歩ルート生成 | Directions APIまたはOSMベースで徒歩ルートを自動生成し、所要時間と距離を表示 |
-| F4 | 高低差・坂道考慮 | OpenElevationなどから標高情報を取得し、坂道や急傾斜の回避ルートを選定 |
-| F5 | 電波状況チェック | OpenCelliDの基地局情報を元に、圏外リスクを警告表示 |
-| F6 | 緊急情報の登録と表示 | 緊急連絡先、退出ルート、最寄りの避難ポイントなどを事前登録・閲覧可能にする |
-| F7 | ルートスケジュール作成 | 移動予定時間・到着時間・滞在時間をスケジュール形式で表示 |
-| F8 | オフライン対応 | IndexedDBにより、地図、ルート、スケジュール、緊急情報を保存・参照可能にする |
-| F9 | 地図表示とズーム演出 | Leaflet.js等で地図を表示し、目的地決定時にズームイン演出を行う |
-| F10 | 冒険ログ保存 | 目的地・訪問履歴・撮影写真を保存（Supabase等でクラウド保存） |
-| F11 | ユーザー認証 | メールまたはOAuthでログインし、ユーザー個別の冒険データを管理 |
-| F12 | PWA対応 | モバイル端末にアプリとしてインストール可能なPWA仕様に対応 |
-| F13 | 友達との中間地点を出発地にする機能 | 最寄駅が友達同士で違うので、中間ポイントを取ってそこを待ち合わせにする。 |
-| F14 | 地点ごとの写真データを取ってそこを共有する機能 |  |
-| F15 | ルート編集機能 | 突発的に中間ルートを編集できる |
+| No. | カテゴリ | 要件内容 |  |
+| --- | --- | --- | --- |
+| F1 | ランダム目的地生成 | 現在地または指定地点から一定範囲内の地点をランダムに選出する（安全性や電波状況、都市部に近いなどの条件付き） |  |
+| F2 | 目的地の情報表示 | 選ばれた目的地の名称、簡単な説明、写真（可能であれば）、現在地からの距離などを表示 |  |
+| F3 | 徒歩ルート生成 | Directions APIまたはOSMベースで徒歩ルートを自動生成し、所要時間と距離を表示 |  |
+| F4 | 高低差・坂道考慮 | OpenElevationなどから標高情報を取得し、坂道や急傾斜の回避ルートを選定 |  |
+| F5 | 電波状況チェック | OpenCelliDの基地局情報を元に、圏外リスクを警告表示 |  |
+| F6 | 緊急情報の登録と表示 | 緊急連絡先、退出ルート、最寄りの避難ポイントなどを事前登録・閲覧可能にする |  |
+| F7 | ルートスケジュール作成 | 移動予定時間・到着時間・滞在時間をスケジュール形式で表示 |  |
+| F8 | オフライン対応 | IndexedDBにより、地図、ルート、スケジュール、緊急情報を保存・参照可能にする |  |
+| F9 | 地図表示とズーム演出 | Leaflet.js等で地図を表示し、目的地決定時にズームイン演出を行う |  |
+| F10 | 冒険ログ保存 | 目的地・訪問履歴・撮影写真を保存（Supabase等でクラウド保存） |  |
+| F11 | ユーザー認証 | メールまたはOAuthでログインし、ユーザー個別の冒険データを管理 |  |
+| F12 | PWA対応 | モバイル端末にアプリとしてインストール可能なPWA仕様に対応 |  |
+| F13 | 友達との中間地点を出発地にする機能 | 最寄駅が友達同士で違うので、中間ポイントを取ってそこを待ち合わせにする。 |  |
+| F14 | 地点ごとの写真データを取ってそこを共有する機能 |  |  |
+| F15 | ルート編集機能 | 突発的に中間ルートを編集できる |  |
 
 ---
 
@@ -86,189 +87,109 @@
 
 # 各テーブルの詳細設計
 
-### 1. `Auth users`（Supabase Authと連携）
+### 1. `users`（ユーザー）
 
-ログイン（Google、Apple、Email等）に必要なユーザー認証の基本情報を保持。
-
-| フィールド名 | 型 | 説明 |
+| カラム名 | 型 | 補足 |
 | --- | --- | --- |
-| `id` | UUID | ユーザーID（Authと同期） |
-| `provider` | TEXT | Supabaseが自動設定（例：google、apple、email） |
-| `email` | TEXT | メールアドレス（Authから取得） |
-
-### 2. `users`（アプリ管理用）
-
-| フィールド名 | 型 | 説明 |
-| --- | --- | --- |
-| `id` | UUID | ユーザーID（Authと同期） |
-| `provider` | TEXT | auth.users.provider のコピー（初回登録時に設定） |
-| `avatar_url` | TEXT | googleとかのアイコンのURL |
+| `id` | UUID | 主キー（Auth連携） |
+| `email` | STRING | メールアドレス |
+| `password_hash` | STRING | ローカル認証用 |
+| `provider` | STRING | Google, Apple など |
 | `created_at` | TIMESTAMP | 登録日時 |
-| `display_name` | TEXT | 表示名（任意） |
 
 ---
 
-### 3. `adventures`
+### 2. `adventures`（1回の冒険）
 
-「1回の旅（冒険）」を一意に識別し、開始・終了、状態を管理する。
-
-| フィールド名 | 型 | 説明 |
+| カラム名 | 型 | 説明 |
 | --- | --- | --- |
 | `id` | UUID | 冒険ID |
-| `user_id` | UUID | `users.id`（外部キー） |
-| `start_time` | TIMESTAMP | 冒険開始時刻 |
-| `end_time` | TIMESTAMP | 冒険終了時刻 |
-| `status` | TEXT | `planned`, `in_progress`, `completed` など |
-| `destination_id` | UUID | `locations.id`（外部キー） |
+| `user_id` | UUID | 外部キー |
+| `start_time` | TIMESTAMP | 開始時刻 |
+| `end_time` | TIMESTAMP | 終了時刻（nullable） |
+| `status` | STRING | `planned`, `in_progress`, `completed`, `failed` 
+将来的な拡張（再開機能・履歴管理・分析など）を見越す |
+| `failure_reason` | STRING | `NOT_ENOUGH_CANDIDATES` などの識別子（nullable） |
+| `total_distance` | FLOAT | 予定されていた距離（例：5.0） |
+| `created_at` | TIMESTAMP | 作成日時 |
 
 ---
 
-### 4. `locations`
+### 3. `adventure_preferences`（ユーザーが指定した条件）
 
-位置情報の取得、標高の取得、電波状況の取得するデータを受け取る
-
-| フィールド名 | 型 | 説明 |
+| カラム名 | 型 | 説明 |
 | --- | --- | --- |
-| `id` | UUID | 地点ID |
-| `local_name` | TEXT | 地点名（NominatimやPlaces APIで取得） |
-| `latitude` | FLOAT | 緯度 |
-| `longitude` | FLOAT | 経度 |
-| `type` | TEXT | `park`, `temple`, `random_spot`, etc. |
-| `elevation` | INTEGER | 標高（m） |
-| `is_signal_safe` | BOOLEAN | 電波状況が良好か（OpenCelliD判定） |
+| `id` | UUID | 主キー |
+| `adventure_id` | UUID | 外部キー |
+| `ordered_spot_types` | TEXT[][] | 例：`[['park', 'scenic'], ['shrine', 'temple']]`（順序ありの候補） |
+| `total_distance_km` | FLOAT | ユーザーが指定した全体距離 |
+| `created_at` | TIMESTAMP | 作成日時 |
 
 ---
 
-### 5. `routes`
+### 4. `locations`（各スポット）
 
-経路情報の登録
+| カラム名 | 型 | 説明 |
+| --- | --- | --- |
+| `id` | UUID | 主キー |
+| `local_name` | TEXT | 名称（APIで取得） |
+| `latitude`  | FLOAT | 緯度 |
+| `longitude` | FLOAT | 経度 |
+| `type` | TEXT | `park`, `scenic_spot`, `shrine`, etc. |
+| `is_accessible` | BOOLEAN | 立ち入り可能か |
+| `is_watar_area` | BOOLEAN | 水域か |
 
-| フィールド名 | 型 | 説明 |
+---
+
+### 5. `adventure_locations`（実際に選ばれた地点と順序）
+
+| カラム名 | 型 | 説明 |
+| --- | --- | --- |
+| `id` | UUID | 主キー |
+| `adventure_id` | UUID | 外部キー |
+| `location_id` | UUID | 外部キー |
+| `sequence` | INTEGER | 何番目の地点か（0=出発地, 1=スポット1, ...） |
+| `type_used` | TEXT | 候補群の中から選ばれた type |
+| `selection_type` | TEXT | `user_selected`, `random_fallback`, `auto_substituted` など
+ |
+
+---
+
+### 6. `routes`（ルートGeoJSON）
+
+| カラム名 | 型 | 説明 |
 | --- | --- | --- |
 | `id` | UUID | ルートID |
-| `adventure_id` | UUID | `adventures.id`（外部キー） |
-| `route_json` | JSONB | GeoJSONまたはPolyline形式の経路情報 |
-| `total_distance` | FLOAT | 総距離（m） |
-| `total_duration` | INTEGER | 総時間（分） |
-| `elevation_gain` | FLOAT | 累積上昇量（m） |
+| `adventure_id` | UUID | 外部キー |
+| `route_json` | JSONB | GeoJSONまたはPolyline |
+| `total_distance` | FLOAT | 実距離（m） |
+| `total_duration` | INTEGER | 時間（分） |
 
 ---
 
-### 6. `schedules`
+### 7. `lisk_zone`（危険地域判別用）
 
-| フィールド名 | 型 | 説明 |
+| カラム名 | 型 | 説明 |
 | --- | --- | --- |
-| `id` | UUID | スケジュールID |
-| `adventure_id` | UUID | `adventures.id` |
-| `arrival_time` | TIMESTAMP | 到着予定時刻 |
-| `departure_time` | TIMESTAMP | 出発予定時刻 |
-| `location_id` | UUID | `locations.id` |
-| `memo` | TEXT | メモや注意事項 |
+| `id` | UUID | 主キー |
+| `code` | UUID | 外部キー |
+| `name` | STRING |  |
+| `geometory` | FLOAT | postgis |
+| `created_at` | DAYTIME |  |
 
 ---
-
-### 7. `emergency_contacts`
-
-| フィールド名 | 型 | 説明 |
-| --- | --- | --- |
-| `id` | UUID | 緊急連絡ID |
-| `user_id` | UUID | `users.id` |
-| `name` | TEXT | 連絡先名 |
-| `phone` | TEXT | 電話番号 |
-| `note` | TEXT | 備考（関係性や対応内容など） |
-
----
-
-### 8. `escape_routes`
-
-| フィールド名 | 型 | 説明 |
-| --- | --- | --- |
-| `id` | UUID | 退出ルートID |
-| `adventure_id` | UUID | `adventures.id` |
-| `route_json` | JSONB | GeoJSONデータなど |
-| `type` | TEXT | `station`, `main_road`, `emergency_exit` など |
-| `estimated_time` | INTEGER | 到達所要時間（分） |
-
----
-
-### 9. `logs`（分析・学習用）
-
-| フィールド名 | 型 | 説明 |
-| --- | --- | --- |
-| `id` | UUID | ログID |
-| `user_id` | UUID | `users.id` |
-| `event_type` | TEXT | `open_app`, `start_adventure`, `panic_button`など |
-| `timestamp` | TIMESTAMP | イベント発生時刻 |
-| `details` | JSONB | その他データ（位置情報など） |
-
----
-
-### 10. `checkpoints`（）
-
-| フィールド名 | 型 | 説明 |
-| --- | --- | --- |
-| `id` | UUID | ログID |
-| `routes_id` | UUID | `routes_id` FK |
-| `description` | TEXT | 詳細 |
-| `latitude` | FLOAT | イベント発生時刻 |
-| `longitude` | FLOAT | その他データ（位置情報など） |
-| `sequence` | INTEGER | 経路上の順序 |
-| `required` | BOOLEAN | 立ち寄り必須か |
-| `create_at` | TIMESTAMP | 登録日時 |
-| `update_at` | TIME STAMP | 変更日時 |
-
----
-
-## オフライン対応（IndexedDBでキャッシュすべきデータ）
-
-| データ | なぜキャッシュすべきか |
-| --- | --- |
-| `adventures` | 進行中の冒険がアプリ起動時に必須 |
-| `routes` | 地図描画と移動経路確認に必須 |
-| `emergency_contacts` | 緊急時に通信不要で利用可能に |
-| `escape_routes` | 安全確保のため、常時確認できる必要あり |
-| `schedules` | スケジュール通り進めるために重要 |
-| `locations` | 地点名・位置情報をマップに表示するため |
-- タイルマップ（Leaflet.js + 事前キャッシュ）
 
 # ER図
-![ER図](./README-image/ER-v6drawio.svg)
 
-
+![ER図v9.drawio.svg](Geo%20Walker%20206a1f696ef2803f9f67fdd97327033b/ER%E5%9B%B3v9.drawio.svg)
 
 # 画面遷移図
-
-## 選択式マップ表示の機能一覧
-
-| 機能 | 概要 | 表示形式 | 技術的手段（例） |
-| --- | --- | --- | --- |
-| **徒歩ルート表示**（基本） | 通常ルート線 | GeoJSONまたはPolyline | Google Directions API / OSM |
-| **高低差の表示** | 勾配のある場所に色付け | カラーマップまたは標高マーカー | OpenElevation API + Leaflet heatmap など |
-| **電波状況の表示** | 圏外エリアを赤塗り or 警告アイコン | ヒートマップ or ポリゴン | OpenCelliD + Leaflet layer |
-| **チェックポイント表示** | 通過必須 or 推奨地点を表示 | ピン + テキスト or イラスト | DBの `checkpoints` から描画 |
-| **緊急退出ルート表示** | 駅・幹線道路など緊急ルートの描画 | 破線ルート | `escape_routes` データから描画 |
-| **天気情報表示（任意）** | 目的地周辺の気象状況 | 天気アイコン + ポップアップ | OpenWeatherMap API |
-
-| No. | 画面名 | 説明 | 必須機能 |
-| --- | --- | --- | --- |
-| 1 | **トップ画面（Home）** | アプリの紹介、ログインボタンなど | ログイン / PWAインストール案内 |
-| 2 | **ログイン画面** | Supabase Authによる認証 | メール/Googleログイン |
-| 3 | **ダッシュボード** | 冒険の開始・履歴の確認 | 「冒険をはじめる」ボタン / 冒険履歴リンク |
-| 4 | **目的地提案画面** | ランダムな目的地を表示 | 地図＋ズーム演出 / 地名・距離・安全性の表示 |
-| 5 | **ルート確認画面** | 徒歩ルート＋高低差・電波状況を表示 | 地図（Leaflet）/ Polyline / 電波・標高マーカー |
-| 6 | **スケジュール画面** | 出発/到着/滞在の時間表示 | タイムテーブル形式でスケジュール表示 |
-| 7 | **緊急情報画面** | 登録済みの緊急連絡先や脱出ルートを表示 | 連絡先リスト＋退出ルート地図 |
-| 8 | **オフライン用ダウンロード画面** | 地図・ルート・スケジュールを保存 | IndexedDBに保存ボタン / 保存済みマーク |
-| 9 | **冒険ログ画面（履歴一覧）** | 過去の冒険記録を表示 | 冒険名・日付一覧 / 詳細ボタン |
-| 10 | **冒険ログ詳細画面** | 過去のルートと写真を確認 | 地図＋ルート＋画像一覧 |
-| 11 | **設定画面** | ユーザー情報・言語・ログアウトなど | 表示名変更 / 言語切替（任意） / ログアウト |
-| 12 | **エラーページ** | 不正な遷移やデータ取得失敗時 | 「戻る」ボタン / 再読み込み提案 |
 
 # MVP
 
 ### MVP第一段階：機能概要
 
-**目的**：大阪駅から大阪府内のどこかへ向かう「徒歩旅」ルートと予定表を自動生成する。
+**目的**：現在地から指定距離の範囲でランダムな目的地とユーザー指定のスポットをルートと予定表を自動生成する。
 
 ### 主なステップ
 
