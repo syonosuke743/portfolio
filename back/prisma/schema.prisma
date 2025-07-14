@@ -9,13 +9,27 @@ generator client {
 }
 
 model Users {
-    id           Int      @id @default(autoincrement())
+    id           Int          @id @default(autoincrement())
     email        String
-    passwordHash String?  @map("password_hash")
+    passwordHash String?      @map("password_hash")
     provider     String?
-    createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+    createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+    Adventures   Adventures[]
 
     @@map("users")
+}
+
+model Adventures {
+    id            Int       @id @default(autoincrement())
+    startTime     DateTime? @map("start_time")
+    endTime       DateTime? @map("end_time")
+    status        String
+    failureReason String    @map("failure_reason")
+    totalDistance Float     @map("total_distance")
+    createdAt     DateTime  @default(now()) @map("create_at") @db.Timestamptz(3)
+
+    usersId Int   @map("user_id")
+    users   Users @relation(fields: [usersId], references: [id])
 }
 
 //コア機能を開発後、余裕があったら実装
