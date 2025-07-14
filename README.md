@@ -181,7 +181,7 @@
 
 # ER図
 
-![ER図](./readme-image/ER-v9drawio.svg)
+![ER図](./README-image/ER-v9drawio.svg)
 
 # 画面遷移図
 
