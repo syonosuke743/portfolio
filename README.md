@@ -100,7 +100,6 @@
 | `start_time`                                         | TIMESTAMP | 開始時刻                                         |
 | `end_time`                                           | TIMESTAMP | 終了時刻（nullable）                             |
 | `status`                                             | STRING    | `planned`, `in_progress`, `completed`, `failed`  |
-| 将来的な拡張（再開機能・履歴管理・分析など）を見越す |
 | `failure_reason`                                     | STRING    | `NOT_ENOUGH_CANDIDATES` などの識別子（nullable） |
 | `total_distance`                                     | FLOAT     | 予定されていた距離（例：5.0）                    |
 | `created_at`                                         | TIMESTAMP | 作成日時                                         |
