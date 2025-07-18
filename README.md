@@ -191,7 +191,7 @@
 
 # ER 図
 
-![ER図](./README-image/ER図v12.svg)
+![ER図](./README-image/ERv12.svg)
 
 # 画面遷移図
 
