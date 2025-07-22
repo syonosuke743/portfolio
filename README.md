@@ -138,7 +138,7 @@
 | `id`             | UUID    | 主キー                                                      |
 | `adventure_id`   | UUID    | 外部キー                                                    |
 | `location_id`    | UUID    | 外部キー                                                    |
-| `sequence`       | INTEGER | 何番目の地点か（0=出発地, 1=スポット 1, ...）               |
+| `sequence`       | INTEGER | 実際に訪れた地点の順番              |
 | `type_used`      | TEXT    | 候補群の中から選ばれた type                                 |
 | `selection_type` | TEXT    | `user_selected`, `random_fallback`, `auto_substituted` など |
 |  |
@@ -175,7 +175,7 @@
 | ------------------------- | --------- | -------------------------------------- |
 | `id`                      | UUID      | 主キー                                 |
 | `adventure_preference_id` | UUID      | 外部キー（`adventure_preferences.id`） |
-| `sequence`                | INTEGER   | グループの順序（0〜）                  |
+| `sequence`                | INTEGER   | ユーザーが訪れたいタイプの順番                 |
 | `created_at`              | TIMESTAMP | 作成日時                               |
 
 
