@@ -1,250 +1,233 @@
-
+# TokoToko
 
 # エレベーターピッチ
 
 xxは、「歩く」をもっと冒険的にする、新感覚の徒歩旅アプリです。
 
-都市や日常の風景を、まるでRPGのマップのように再発見できる体験を提供します。ユーザーが現在地を選ぶと、ランダムな目的地を自動生成。
-Googleマップのように「行きたい場所」から逆算するのではなく、「どこに行くかわからないワクワク」から旅が始まります。
+都市や日常の風景を、まるでRPGのマップのように再発見できる体験を提供します。ユーザーが現在地を選ぶと、ランダムな目的地を自動生成。 Googleマップのように「行きたい場所」から逆算するのではなく、「どこに行くかわからないワクワク」から旅が始まります。
 
 散歩がマンネリ化した都市生活者や、週末のちょっとした非日常を手軽に楽しみたい人を対象にしています。
 
-従来のルート案内アプリや観光ガイドとは違い、xxは「行く意味」ではなく「歩く楽しみ」を演出することに特化しています。
-たとえば、水域や私有地、危険エリアを除いた安全なエリアから目的地をピックアップし、ルートを生成。
-歩行距離を自分の気分に合わせて“冒険”ができます。
+従来のルート案内アプリや観光ガイドとは違い、xxは「行く意味」ではなく「歩く楽しみ」を演出することに特化しています。 たとえば、水域や私有地、危険エリアを除いた安全なエリアから目的地をピックアップし、ルートを生成。 歩行距離を自分の気分に合わせて“冒険”ができます。
 
-ただの地図アプリではなく、人生の道草をデザインするツール。
-それがxxです。
+ただの地図アプリではなく、人生の道草をデザインするツール。 それがxxです。
 
+---
 
 # 競合アプリとの差別化ポイント
 
-| 項目                            | 内容                                                                                                                           |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| **1. ランダム目的地提案機能**   | Google Maps など従来のナビアプリはユーザー主導の目的地設定が基本だが、本アプリは「未知との遭遇」を重視し、ランダム提案が中心。 |
-| **2. 徒歩,自転車ルートに特化**         | 観光・冒険向けに徒歩と自転車向け。細かい地形を考慮し、安全性にも配慮。                                                         |
-| **3. UI/UX 演出で冒険心を刺激** | 目的地決定時に地図が「ズームイン」していく演出など、遊び心のある演出でワクワク感を演出。                                       |
-| **4. 低コスト・個人向け設計**   | lieflet.js、無料の API、postgis などなるべく費用がかからない外部サービスを利用しコストカット                                   |
+| 項目 | 内容 |
+| --- | --- |
+| **1. ランダム目的地提案機能** | Google Mapsなど従来のナビアプリはユーザー主導の目的地設定が基本だが、本アプリは「未知との遭遇」を重視し、ランダム提案が中心。 |
+| **2. 徒歩ルートに特化** | 観光・冒険向けに徒歩と自転車向け。細かい地形を考慮し、安全性にも配慮。 |
+| **3. UI/UX演出で冒険心を刺激** | 目的地決定時に地図が「ズームイン」していく演出など、遊び心のある演出でワクワク感を演出。 |
+| **4. 低コスト・個人向け設計** | lieflet.js、無料のAPI、postgisなどなるべく費用がかからない外部サービスを利用しコストカット |
 
+---
 
+## 利用が想定される外部APIと利用目的
 
-## 利用が想定される外部 API と利用目的
-
-| API 名 / 技術                                              | 利用目的                                                                  | 無料プラン / 備考                                           | 優先度                    |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------- |
-| **OpenCelliD API**                                         | 基地局位置データ → 電波の良し悪しをスポット評価に活用（`is_signal_safe`） | 無料（API キー必要）レート制限あり                          | △（MVP では後回し可）     |
-| **Open-Elevation API**または **Mapbox Terrain-RGB**        | 標高取得（坂道/崖/登山ルートを回避）`locations.elevation` に利用          | あり（1 日制限）Mapbox は API キー必須                      | △（将来的に安全性強化に） |
-| **Leaflet.js + 地図タイル API**（OSM / Mapbox / Maptiler） | 軽量なマップ表示、ルート線描画、ピン、ズーム演出                          | 無料プランあり（OSM は完全無料）Mapbox は上限あり（50k/月） | ◎（MVP 中核）             |
-| **Nominatim (OSM)**                                        | 住所 ↔ 緯度経度変換`locations.local_name` 自動入力に利用                  | 完全無料（ただし大量アクセス制限）商用は Self-host が推奨   | ○                         |
-| **OpenWeatherMap API**                                     | 旅当日の天気表示（「傘いる？」UX 向上）                                   | 無料あり（60 calls/min）緯度経度で取得可能                  | △（MVP 後に検討）         |
-| **PWA (Service Worker / Manifest)**                        | オフラインキャッシュ、ホーム画面追加、オフライン冒険サポート              | 無料、ブラウザ標準                                          | ○（旅中の切断対策に）     |
-| **PostGIS**                                                | 空間検索、危険エリア除外、県境判定、距離計算など全地理処理                | 無料（PostgreSQL 拡張）必須ライブラリ                       | ◎（中核技術）             |
+| API名 / 技術 | 利用目的 | 無料プラン / 備考 | 優先度 |
+| --- | --- | --- | --- |
+| **Leaflet.js + 地図タイルAPI**（OSM / Mapbox / Maptiler） | 軽量なマップ表示、ルート線描画、ピン、ズーム演出 | 無料プランあり（OSMは完全無料）Mapboxは上限あり（50k/月） | ◎（MVP中核） |
+| **Nominatim (OSM)** | 住所 ↔ 緯度経度変換`locations.local_name` 自動入力に利用 | 完全無料（ただし大量アクセス制限）商用はSelf-hostが推奨 | ○ |
+| **PostGIS** | 空間検索、危険エリア除外、県境判定、距離計算など全地理処理 | 無料（PostgreSQL拡張）必須ライブラリ | ◎（中核技術） |
 
 ## 追加機能（将来的な差別化拡張）
 
-| 機能                                             | 利用 API 候補                               |
-| ------------------------------------------------ | ------------------------------------------- |
-| **体力消費シミュレーション**（高低差・距離から） | OpenElevation + Google Fit 連携             |
-| **冒険ログ保存・共有**                           | SNS 連携（Twitter API, Instagram API など） |
-| **AI による冒険テーマの提案**                    | ChatGPT API or OpenAI Function Calling      |
+| 機能 | 利用API候補 |
+| --- | --- |
+| **体力消費シミュレーション**（高低差・距離から） | OpenElevation + Google Fit連携 |
+| **冒険ログ保存・共有** | SNS連携（Twitter API, Instagram APIなど） |
+| **AIによる冒険テーマの提案** | ChatGPT API or OpenAI Function Calling |
 
 # 課題
 
-- 必要な言語の学習（Udemy 一周してあとは実践）
-- postgis の勉強
-- 外部 API を使うためのアカウントの作成
-- API の呼び出し順をどうするか
+- 必要な言語の学習（Udemy一周してあとは実践）
+- postgisの勉強
+- 外部APIを使うためのアカウントの作成
+- APIの呼び出し順をどうするか
 - トランザクション管理をどうするか
-- MVP
+- MVPの検討
 - インフラ構成図の作成
 - 使用技術の調査
 
 # 機能要件
 
-| No. | カテゴリ               | 要件内容                                                        |     |
-| --- | ---------------------- | --------------------------------------------------------------- | --- |
-| F1  | ランダム目的地生成     | 現在地から一定範囲内の地点をランダムに選出する                  |     |
-| F2  | 目的地の情報表示       | 選ばれた目的地の名称を表示                                      |     |
-| F3  | 徒歩ルート生成         | OSM ベースで徒歩ルートを自動生成し、所要時間と距離を表示        |     |
-| F4  | ルートスケジュール作成 | 移動予定時間・到着時間をスケジュール形式で表示                  |     |
-| F5  | 地図表示とズーム演出   | Leaflet.js 等で地図を表示し、目的地決定時にズームイン演出を行う |     |
-| F6  | 冒険ログ保存           | 目的地・訪問履歴を保存                                          |     |
-| F7  | ユーザー認証           | メールまたは OAuth でログインし、ユーザー個別の冒険データを管理 |     |
-| F8  | PWA 対応               | モバイル端末にアプリとしてインストール可能な PWA 仕様に対応     |     |
+---
 
-
+| No. | カテゴリ | 要件内容 |
+| --- | --- | --- |
+| F1 | ユーザー認証 | メールまたはOAuthでログインし、ユーザー個別の冒険データを管理 |
+| F2 | ランダム目的地生成 | 現在地から一定範囲内の地点をランダムに選出する |
+| F3 | 目的地の情報表示 | 選ばれた目的地の名称を表示 |
+| F4 | 徒歩ルート生成 | OSMベースで徒歩ルートを自動生成し、所要時間と距離を表示 |
+| F5 | ルートスケジュール作成 | 移動予定時間・到着時間をスケジュール形式で表示 |
+| F6 | 地図表示とズーム演出 | Leaflet.js等で地図を表示し、目的地決定時にズームイン演出を行う |
+| F7 | 冒険ログ保存 | 目的地を保存 |
+| F8 | PWA対応 | モバイル端末にアプリとしてインストール可能なPWA仕様に対応 |
 
 # 非機能要件
 
-| No. | カテゴリ               | 要件内容                                                                     |
-| --- | ---------------------- | ---------------------------------------------------------------------------- |
-| N1  | パフォーマンス         | 目的地提案からルート表示まで、5 秒以内に完了すること                         |
-| N2  | 可用性                 | サービス稼働率 99%以上（gcpなどのクラウドサービスを活用）              |
-| N3  | セキュリティ           | ユーザーデータは postgress で認証し、Storage と DB に適切な権限管理を行う    |
-| N4  | 拡張性                 | 新たな目的地カテゴリや電波データプロバイダーの追加に対応できる構成であること |
-| N5  | 保守性                 | API キー・設定値を環境変数で一元管理し、デプロイ・更新が容易であること       |
-| N6  | モバイル最適化         | スマートフォンでの表示・操作性を優先設計とする（レスポンシブ対応）           |
-| N7  | データ通信最適化       | オフライン用の地図やルートデータは必要最小限のみ事前取得し、通信量を節約する |
-| N8  | ライセンス準拠         | 使用する地図・API（OpenStreetMap, OpenCelliD 等）の利用規約を遵守すること    |
-| N9  | 多言語対応（できれば） | 国外ユーザー向けに、英語・日本語の 2 言語に対応（初期は日本語のみでも可）    |
+---
+
+| No. | カテゴリ | 要件内容 |
+| --- | --- | --- |
+| N1 | パフォーマンス | 目的地提案からルート表示まで、5秒以内に完了すること |
+| N2 | 可用性 | サービス稼働率99%以上（gcpなどのクラウドサービスを活用） |
+| N3 | セキュリティ | JWTなどのトークンを適切に管理する。HTTPS化、XSS対策 |
+| N4 | 保守性 | APIキー・設定値を環境変数で一元管理し、デプロイ・更新が容易であること |
+| N5 | モバイル最適化 | スマートフォンでの表示・操作性を優先設計とする（レスポンシブ対応） |
+| N6 | データ通信最適化 | オフライン用の地図やルートデータ等の必要最小限のみ事前取得し、通信量を節約する |
+| N7 | ライセンス準拠 | 使用する地図・API（OpenStreetMap, OpenCelliD等）の利用規約を遵守すること |
+| N8 | 多言語対応（できれば） | 国外ユーザー向けに、英語・日本語の2言語に対応（初期は日本語のみでも可） |
 
 # 各テーブルの詳細設計
 
-### 1. `users`（ユーザー）
+---
 
-| カラム名        | 型        | 補足                |
-| --------------- | --------- | ------------------- |
-| `id`            | UUID      | 主キー（Auth 連携） |
-| `email`         | STRING    | メールアドレス      |
-| `password_hash` | STRING    | ローカル認証用      |
-| `provider`      | STRING    | Google, Apple など  |
-| `created_at`    | TIMESTAMP | 登録日時            |
+## 1. users（ユーザー）
 
+| カラム名 | 型 | 制約 | 説明 |
+| --- | --- | --- | --- |
+| id | UUID | PK | ユーザーID |
+| email | STRING | UNIQUE, NOT NULL | メールアドレス |
+| password_hash | STRING | NULL可 | パスワードハッシュ |
+| provider | STRING | NULL可 | OAuth プロバイダー |
+| created_at | TIMESTAMP | NOT NULL | 作成日時 |
 
+### 2. adventures（冒険）
 
-### 2. `adventures`（1 回の冒険）
+| カラム名 | 型 | 制約 | 説明 |
+| --- | --- | --- | --- |
+| id | UUID | PK | 冒険ID |
+| user_id | UUID | FK(users.id) | ユーザーID |
+| start_lat | FLOAT | NOT NULL | 出発地緯度（現在地） |
+| start_lng | FLOAT | NOT NULL | 出発地経度（現在地） |
+| start_name | STRING | NULL可 | 出発地名称 |
+| start_time | TIMESTAMP | NOT NULL | 開始時刻 |
+| end_time | TIMESTAMP | NULL可 | 終了時刻 |
+| status | STRING | NOT NULL | ステータス（planned/in_progress/completed/failed） |
+| failure_reason | STRING | NULL可 | 失敗理由 |
+| total_distance | FLOAT | NULL可 | 実際に生成された総距離（km） |
+| created_at | TIMESTAMP | NOT NULL | 作成日時 |
 
-| カラム名                                             | 型        | 説明                                             |
-| ---------------------------------------------------- | --------- | ------------------------------------------------ |
-| `id`                                                 | UUID      | 冒険 ID                                          |
-| `user_id`                                            | UUID      | 外部キー                                         |
-| `start_time`                                         | TIMESTAMP | 開始時刻                                         |
-| `end_time`                                           | TIMESTAMP | 終了時刻（nullable）                             |
-| `status`                                             | STRING    | `planned`, `in_progress`, `completed`, `failed`  |
-| `failure_reason`                                     | STRING    | `NOT_ENOUGH_CANDIDATES` などの識別子（nullable） |
-| `total_distance`                                     | FLOAT     | 予定されていた距離（例：5.0）                    |
-| `created_at`                                         | TIMESTAMP | 作成日時                                         |
+### 3. adventure_waypoints（経由地点）
 
+| カラム名 | 型 | 制約 | 説明 |
+| --- | --- | --- | --- |
+| id | UUID | PK | 経由地点ID |
+| adventure_id | UUID | FK(adventures.id) | 冒険ID |
+| sequence | INTEGER | NOT NULL | 順番（1, 2, 3...） |
+| spot_type | STRING | NOT NULL | スポット種別（park/restaurant/scenic/tourist_spot） |
+| selection_type | STRING | NOT NULL | 選択方法（user_selected/random_selected） |
+| latitude | FLOAT | NOT NULL | 緯度 |
+| longitude | FLOAT | NOT NULL | 経度 |
+| location_name | STRING | NOT NULL | 地点名 |
+| created_at | TIMESTAMP | NOT NULL | 作成日時 |
 
+### 4. adventure_preferences（冒険設定）
 
-### 3. `adventure_preferences`（ユーザーが指定した条件）
+| カラム名 | 型 | 制約 | 説明 |
+| --- | --- | --- | --- |
+| id | UUID | PK | 設定ID |
+| adventure_id | UUID | FK(adventures.id), UNIQUE | 冒険ID |
+| total_distance_km | FLOAT | NOT NULL | ユーザー希望距離 |
+| waypoint_count | INTEGER | NOT NULL | 経由地点数 |
+| created_at | TIMESTAMP | NOT NULL | 作成日時 |
 
-| カラム名            | 型        | 説明             |
-| ------------------- | --------- | ---------------- |
-| `id`                | UUID      | 主キー           |
-| `adventure_id`      | UUID      | 外部キー（冒険） |
-| `total_distance_km` | FLOAT     | ユーザー指定距離 |
-| `created_at`        | TIMESTAMP | 作成日時         |
+### 5. routes（ルート）
 
+| カラム名 | 型 | 制約 | 説明 |
+| --- | --- | --- | --- |
+| id | UUID | PK | ルートID |
+| adventure_id | UUID | FK(adventures.id) | 冒険ID |
+| route_json | JSONB | NOT NULL | GeoJSON形式ルート |
+| total_distance | FLOAT | NOT NULL | 各地点間の距離 |
+| total_duration | INTEGER | NOT NULL | 所要時間（分） |
+| created_at | TIMESTAMP | NOT NULL | 作成日時 |
 
+### 6. risk_zones（危険地域）
 
-### 4. `locations`（各スポット）
+| カラム名 | 型 | 制約 | 説明 |
+| --- | --- | --- | --- |
+| id | UUID | PK | 危険地域ID |
+| code | STRING | UNIQUE, NOT NULL | 地域コード（国土地理院、国交省などが提供する地理データセットに、地域ごとのコードがある場合、それと紐付けるために使える） |
+| name | STRING | NOT NULL | 地域名 |
+| type | STRING | NOT NULL | 危険タイプ（水域/基地/空港/線路/高速道路など） |
+| geom | geometory | NOT NULL | 危険地域のポリゴン形状 |
+| created_at | TIMESTAMP | NOT NULL | 作成日時 |
 
-| カラム名        | 型      | 説明                                  |
-| --------------- | ------- | ------------------------------------- |
-| `id`            | UUID    | 主キー                                |
-| `local_name`    | TEXT    | 名称（API で取得）                    |
-| `latitude`      | FLOAT   | 緯度                                  |
-| `longitude`     | FLOAT   | 経度                                  |
-| `type`          | TEXT    | `park`, `scenic_spot`, `shrine`, etc. |
-| `is_accessible` | BOOLEAN | 立ち入り可能か                        |
-| `is_water_area` | BOOLEAN | 水域か                                |
+### 7. locations（POI参照用マスターデータ、外部APIから持ってくるのでローカルのpostgressにテーブルを作らなくてもいい）
 
+| カラム名 | 型 | 制約 | 説明 |
+| --- | --- | --- | --- |
+| id | UUID | PK | 地点ID |
+| name | STRING | NOT NULL | 地点名 |
+| latitude | FLOAT | NOT NULL | 緯度 |
+| longitude | FLOAT | NOT NULL | 経度 |
+| type | STRING | NOT NULL | 地点タイプ（park/restaurant/scenic/tourist_spot） |
+| is_accessible | BOOLEAN | NOT NULL | アクセス可能 |
+| is_water_area | BOOLEAN | NOT NULL | 水域フラグ |
+| source | STRING | NOT NULL | データソース（osm/manual/api） |
+| created_at | TIMESTAMP | NOT NULL | 作成日時 |
 
+### 制約
 
-### 5. `adventure_locations`（実際に選ばれた地点と順序）
+1. **UNIQUE制約**: `(adventure_id, sequence)` - 同じ冒険内で順番重複防止
+2. **外部キー制約**: 全て適切なCASCADE設定
+3. **CHECK制約**: `sequence >= 1` - 順番は1から開始
 
-| カラム名         | 型      | 説明                                                        |
-| ---------------- | ------- | ----------------------------------------------------------- |
-| `id`             | UUID    | 主キー                                                      |
-| `adventure_id`   | UUID    | 外部キー                                                    |
-| `location_id`    | UUID    | 外部キー                                                    |
-| `sequence`       | INTEGER | 実際に訪れた地点の順番              |
-| `type_used`      | TEXT    | 候補群の中から選ばれた type                                 |
-| `selection_type` | TEXT    | `user_selected`, `random_fallback`, `auto_substituted` など |
-|  |
+# ER図
 
+---
 
+![ERv16.svg](TokoToko%20206a1f696ef2803f9f67fdd97327033b/ERv16.svg)
 
-### 6. `routes`（ルート GeoJSON）
+# ワイヤーフレーム
 
-| カラム名         | 型      | 説明                    |
-| ---------------- | ------- | ----------------------- |
-| `id`             | UUID    | ルート ID               |
-| `adventure_id`   | UUID    | 外部キー                |
-| `route_json`     | JSONB   | GeoJSON または Polyline |
-| `total_distance` | FLOAT   | 実距離（m）             |
-| `total_duration` | INTEGER | 時間（分）              |
+---
 
-
-
-### 7. `risk_zone`（危険地域判別用）
-
-| カラム名     | 型       | 説明     |
-| ------------ | -------- | -------- |
-| `id`         | UUID     | 主キー   |
-| `code`       | UUID     | 外部キー |
-| `name`       | STRING   |          |
-| `geometry`   | geometry | postgis  |
-| `created_at` | DAYTIME  |          |
-
-
-
-### `preference_spot_type_groups`（スポットタイプのグループ、順序付き）
-
-| カラム名                  | 型        | 説明                                   |
-| ------------------------- | --------- | -------------------------------------- |
-| `id`                      | UUID      | 主キー                                 |
-| `adventure_preference_id` | UUID      | 外部キー（`adventure_preferences.id`） |
-| `sequence`                | INTEGER   | ユーザーが訪れたいタイプの順番                 |
-| `created_at`              | TIMESTAMP | 作成日時                               |
-
-
-
-### `preference_spot_types`（各グループに属するスポットタイプ候補）
-
-| カラム名                        | 型        | 説明                                         |
-| ------------------------------- | --------- | -------------------------------------------- |
-| `id`                            | UUID      | 主キー                                       |
-| `preference_spot_type_group_id` | UUID      | 外部キー（`preference_spot_type_groups.id`） |
-| `spot_type`                     | STRING    | 例: 'park', 'shrine', 'scenic'など           |
-| `created_at`                    | TIMESTAMP | 作成日時                                     |
-
-# ER 図
-
-![ER図](./README-image/ERv12.svg)
-
-# 画面遷移図
-
-
+![ワイヤーフレームv1.png](TokoToko%20206a1f696ef2803f9f67fdd97327033b/%E3%83%AF%E3%82%A4%E3%83%A4%E3%83%BC%E3%83%95%E3%83%AC%E3%83%BC%E3%83%A0v1.png)
 
 # MVP
 
+---
 
-| 項目                                 | 内容                                 | 必須 |
-| ------------------------------------ | ------------------------------------ | ---- |
-| 現在地の取得                         | GPS で現在地取得                     | ◎    |
-| 距離の指定                           | 例：3km / 5km / 10km など            | ◎    |
-| ランダムな目的地生成                 | 範囲内で 1 地点抽出                  | ◎    |
-| 徒歩ルート生成                       | 現在地 → 目的地                      | ◎    |
-| 地図表示                             | Leaflet.js でルート可視化            | ◎    |
-| 地点が水域・立入禁止でないことを確認 | PostGIS でフィルタ                   | ○    |
-| 旅の履歴保存                         | `adventures`, `routes` 保存          | ○    |
-| 冒険スタート演出                     | 地図のズームイン、アニメーションなど | ○    |
+| 項目 | 内容 | 必須 |
+| --- | --- | --- |
+| 現在地の取得 | GPSで現在地取得 | ◎ |
+| 距離の指定 | 例：3km / 5km / 10km など | ◎ |
+| ランダムな目的地生成 | 範囲内で1地点抽出 | ◎ |
+| 徒歩ルート生成 | 現在地 → 目的地 | ◎ |
+|  地図表示 | Leaflet.jsでルート可視化 | ◎ |
+| 地点が水域・立入禁止でないことを確認 | PostGISでフィルタ | ○ |
+| 旅の履歴保存 | `adventures`, `routes` 保存 | ○ |
+| 冒険スタート演出 | 地図のズームイン、アニメーションなど | ○ |
 
-
+---
 
 ## ルート生成フロー
 
-1. 現在地取得（GPS or 手入力）
+1. 現在地取得（GPS）
 2. 距離選択（例：5km）
-3. PostGIS で安全なランダム地点を抽出
-
-   → `ST_DWithin(current_location, locations.geom, radius)`
-
-   → `NOT is_watar_area AND is_accessible = true`
-
-   → `NOT ST_Intersects(risk_zones.geom)`
-
+3. PostGISで安全なランダム地点を抽出
+    
+    → `ST_DWithin(current_location, locations.geom, radius)`
+    
+    → `NOT is_watar_area AND is_accessible = true`
+    
+    → `NOT ST_Intersects(risk_zones.geom)`
+    
 4. OpenRouteService API などでルート生成
 5. 結果を `routes`, `adventures` に保存
 6. 地図上に表示（Leaflet + GeoJSON）
 
+---
 
+## UIの流れ（MVP用）
 
-## UI の流れ（MVP 用）
-
-ルート構成の最終形（MVP レベルでも最低限必要）
+ ルート構成の最終形（MVPレベルでも最低限必要）
 
 ```
 
@@ -252,34 +235,23 @@ Googleマップのように「行きたい場所」から逆算するのでは�
 
 ```
 
-- スポット 1〜3：ユーザーが選んだ種別（例：公園、神社、景観）に従ってランダム抽出
+- スポット1〜3：ユーザーが選んだ種別（例：公園、神社、景観）に従ってランダム抽出
 - 目的地：完全にランダム or 条件付きランダム（距離内、安全など）
 
-
-
-## なぜこれが必要か
-
-| 観点               | 理由                                                      |
-| ------------------ | --------------------------------------------------------- |
-| ユーザー意図の反映 | 「景観と寺社に立ち寄りたい」という希望を反映              |
-| 冒険の文脈         | ランダム生成だけではなく、意味のある経路になる            |
-
-
-
-
+---
 
 ## 必要な処理ステップ（ロジック面）
 
 1. **現在地取得**
 2. **ユーザーが距離と種別を指定（例：5km、`[scenic, shrine, park]`）**
-3. **PostGIS で各スポットタイプごとに 1 つずつ候補抽出**
-   - `ST_DWithin` + `NOT ST_Intersects(risk_zones)`
-   - `locations.type IN (...)`
-   - 順番は UI で固定
+3. **PostGISで各スポットタイプごとに1つずつ候補抽出**
+    - `ST_DWithin` + `NOT ST_Intersects(risk_zones)`
+    - `locations.type IN (...)`
+    - 順番は UI で固定
 4. **目的地を抽出（ランダム or 条件付き）**
-   - 目的地＝終点（例：他のスポットから 1km 圏内の未知の地点）
-5. **順番通りに全地点を並べて徒歩ルートを生成（外部 API）**
+    - 目的地＝終点（例：他のスポットから1km圏内の未知の地点）
+5. **順番通りに全地点を並べて徒歩ルートを生成（外部API）**
 6. **総距離が超過した場合は再生成 or 距離補正処理**
-7. **ルートと各スポットを DB に保存（`adventure_locations`, `routes`など）**
+7. **ルートと各スポットをDBに保存（`adventure_locations`, `routes`など）**
 
-
+---
