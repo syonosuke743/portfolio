@@ -1,5 +1,5 @@
 # front/Dockerfile.dev
-FROM node:18-alpine
+FROM node:20
 
 WORKDIR /app
 

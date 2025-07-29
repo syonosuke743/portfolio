@@ -10,9 +10,9 @@ generator client {
 
 model User {
     id           Int      @id @default(autoincrement())
-    email        String
+    email        String   @unique
     passwordHash String?  @map("password_hash")
-    provider     String?
+    provider     String?  @default("google")
     createdAt    DateTime @default(now()) @map("created_at")
 
     adventures Adventure[]

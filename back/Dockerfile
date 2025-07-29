@@ -1,9 +1,10 @@
-FROM node:18-alpine
+# back/Dockerfile.dev
+FROM node:20
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+RUN npm install && npm install -g @nestjs/cli
 
 COPY . .
 
