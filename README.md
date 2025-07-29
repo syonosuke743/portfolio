@@ -102,11 +102,6 @@ xxは、「歩く」をもっと冒険的にする、新感覚の徒歩旅アプ
 | --- | --- | --- | --- |
 | id | UUID | PK | 冒険ID |
 | user_id | UUID | FK(users.id) | ユーザーID |
-| start_lat | FLOAT | NOT NULL | 出発地緯度（現在地） |
-| start_lng | FLOAT | NOT NULL | 出発地経度（現在地） |
-| start_name | STRING | NULL可 | 出発地名称 |
-| start_time | TIMESTAMP | NOT NULL | 開始時刻 |
-| end_time | TIMESTAMP | NULL可 | 終了時刻 |
 | status | STRING | NOT NULL | ステータス（planned/in_progress/completed/failed） |
 | failure_reason | STRING | NULL可 | 失敗理由 |
 | total_distance | FLOAT | NULL可 | 実際に生成された総距離（km） |
@@ -120,10 +115,8 @@ xxは、「歩く」をもっと冒険的にする、新感覚の徒歩旅アプ
 | adventure_id | UUID | FK(adventures.id) | 冒険ID |
 | sequence | INTEGER | NOT NULL | 順番（1, 2, 3...） |
 | spot_type | STRING | NOT NULL | スポット種別（park/restaurant/scenic/tourist_spot） |
-| selection_type | STRING | NOT NULL | 選択方法（user_selected/random_selected） |
 | latitude | FLOAT | NOT NULL | 緯度 |
 | longitude | FLOAT | NOT NULL | 経度 |
-| location_name | STRING | NOT NULL | 地点名 |
 | created_at | TIMESTAMP | NOT NULL | 作成日時 |
 
 ### 4. adventure_preferences（冒険設定）
@@ -147,18 +140,8 @@ xxは、「歩く」をもっと冒険的にする、新感覚の徒歩旅アプ
 | total_duration | INTEGER | NOT NULL | 所要時間（分） |
 | created_at | TIMESTAMP | NOT NULL | 作成日時 |
 
-### 6. risk_zones（危険地域）
 
-| カラム名 | 型 | 制約 | 説明 |
-| --- | --- | --- | --- |
-| id | UUID | PK | 危険地域ID |
-| code | STRING | UNIQUE, NOT NULL | 地域コード（国土地理院、国交省などが提供する地理データセットに、地域ごとのコードがある場合、それと紐付けるために使える） |
-| name | STRING | NOT NULL | 地域名 |
-| type | STRING | NOT NULL | 危険タイプ（水域/基地/空港/線路/高速道路など） |
-| geom | geometory | NOT NULL | 危険地域のポリゴン形状 |
-| created_at | TIMESTAMP | NOT NULL | 作成日時 |
-
-### 7. locations（POI参照用マスターデータ、外部APIから持ってくるのでローカルのpostgressにテーブルを作らなくてもいい）
+### 6. locations（POI参照用マスターデータ、外部APIから持ってくるのでローカルのpostgressにテーブルを作らなくてもいい）
 
 | カラム名 | 型 | 制約 | 説明 |
 | --- | --- | --- | --- |
@@ -182,7 +165,7 @@ xxは、「歩く」をもっと冒険的にする、新感覚の徒歩旅アプ
 
 
 
-![ERv16.svg](README-image/ERv16.svg)
+![ERv17.svg](README-image/ERv17.svg)
 
 # ワイヤーフレーム
 
@@ -211,13 +194,13 @@ xxは、「歩く」をもっと冒険的にする、新感覚の徒歩旅アプ
 1. 現在地取得（GPS）
 2. 距離選択（例：5km）
 3. PostGISで安全なランダム地点を抽出
-    
+
     → `ST_DWithin(current_location, locations.geom, radius)`
-    
+
     → `NOT is_watar_area AND is_accessible = true`
-    
+
     → `NOT ST_Intersects(risk_zones.geom)`
-    
+
 4. OpenRouteService API などでルート生成
 5. 結果を `routes`, `adventures` に保存
 6. 地図上に表示（Leaflet + GeoJSON）
