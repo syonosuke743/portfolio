@@ -8,54 +8,66 @@ generator client {
     // binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
-model Users {
-    id           Int          @id @default(autoincrement())
-    email        String
-    passwordHash String?      @map("password_hash")
+model User {
+    id           Int      @id @default(autoincrement())
+    email        String?
+    passwordHash String?  @map("password_hash")
     provider     String?
-    createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
-    Adventures   Adventures[]
+    createdAt    DateTime @default(now()) @map("created_at")
 
-    @@map("users")
+    adventures Adventure[]
 }
 
-model Adventures {
-    id            Int       @id @default(autoincrement())
-    startTime     DateTime? @map("start_time")
-    endTime       DateTime? @map("end_time")
+model Adventure {
+    id            Int      @id @default(autoincrement())
     status        String
-    failureReason String    @map("failure_reason")
-    totalDistance Float     @map("total_distance")
-    createdAt     DateTime  @default(now()) @map("create_at") @db.Timestamptz(3)
+    failureReason String?  @map("failure_reason")
+    totalDistance Float    @map("total_distance")
+    createdAt     DateTime @default(now()) @map("created_at")
 
-    usersId Int   @map("user_id")
-    users   Users @relation(fields: [usersId], references: [id])
+    userId     Int
+    user       User                 @relation(fields: [userId], references: [id])
+    waypoints  AdventureWaypoint[]
+    preference AdventurePreference?
+    Route      Route[]
 }
 
-//コア機能を開発後、余裕があったら実装
+model AdventureWaypoint {
+    id            Int      @id @default(autoincrement())
+    sequence      Int
+    spotType      String   @map("spot_type")
+    selectionType String   @map("selection_type")
+    latitude      Float
+    longitude     Float
+    locationName  String?  @map("location_name")
+    createdAt     DateTime @default(now()) @map("created_at")
 
-// model EmergencyContacts {
-//     id    Int     @id @default(autoincrement())
-//     name  String
-//     phone String
-//     note  String? @db.VarChar(255)
-// }
+    adventureId Int
+    adventure   Adventure @relation(fields: [adventureId], references: [id])
 
-// model EscapeRoutes {
-//     id              Int    @id @default(autoincrement())
-//     escapeRouteJson Json   @map("escape_routes_json")
-//     type            String
-//     estimatedTime   Int    @map("estimated_time")
+    @@unique([adventureId, sequence])
+    @@map("adventure_waypoints")
+}
 
-//     adventureId Int       @map("adventure_id")
-//     adventure   Adventure @relation(fields: [adventureId], references: [id])
-// }
-// model Log {
-//     id        Int      @id @default(autoincrement())
-//     eventType String   @map("event_time")
-//     timeStamp DateTime @map("time_stamp") @db.Timestamptz(3)
-//     details   Json
+model AdventurePreference {
+    id              Int      @id @default(autoincrement())
+    totalDistanceKm Float    @map("total_distance_km")
+    waypointCount   Int      @map("waypoint_count")
+    createdAt       DateTime @default(now()) @map("created_at")
 
-//     userId Int   @map("user_id")
-//     user   Users @relation(fields: [userId], references: [id])
-// }
+    adventureId Int       @unique
+    adventure   Adventure @relation(fields: [adventureId], references: [id])
+
+    @@map("adventures_preferences")
+}
+
+model Route {
+    id            Int      @id @default(autoincrement())
+    routeJson     Json     @map("route_json")
+    totalDistance Float    @map("total_distance") //各地点間の距離
+    totalDulation Int      @map("total_dulation")
+    createdAt     DateTime @default(now()) @map("created_at")
+
+    adventureId Int
+    adventure   Adventure @relation(fields: [adventureId], references: [id])
+}
