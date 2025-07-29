@@ -10,7 +10,7 @@ generator client {
 
 model User {
     id           Int      @id @default(autoincrement())
-    email        String?
+    email        String
     passwordHash String?  @map("password_hash")
     provider     String?
     createdAt    DateTime @default(now()) @map("created_at")
@@ -21,7 +21,7 @@ model User {
 model Adventure {
     id            Int      @id @default(autoincrement())
     status        String
-    failureReason String?  @map("failure_reason")
+    failureReason String?  @map("failure_reason") //ルート生成が失敗した場合の理由
     totalDistance Float    @map("total_distance")
     createdAt     DateTime @default(now()) @map("created_at")
 
@@ -33,14 +33,13 @@ model Adventure {
 }
 
 model AdventureWaypoint {
-    id            Int      @id @default(autoincrement())
-    sequence      Int
-    spotType      String   @map("spot_type")
-    selectionType String   @map("selection_type")
-    latitude      Float
-    longitude     Float
-    locationName  String?  @map("location_name")
-    createdAt     DateTime @default(now()) @map("created_at")
+    id           Int      @id @default(autoincrement())
+    sequence     Int
+    spotType     String   @map("spot_type")
+    latitude     Float
+    longitude    Float
+    locationName String?  @map("location_name")
+    createdAt    DateTime @default(now()) @map("created_at")
 
     adventureId Int
     adventure   Adventure @relation(fields: [adventureId], references: [id])
