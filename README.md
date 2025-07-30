@@ -10,7 +10,7 @@ TokoToko は、「歩く」をもっと冒険的にする、新感覚の徒歩�
 
 従来のルート案内アプリや観光ガイドとは違い、TokoToko は「行く意味」ではなく「歩く楽しみ」を演出することに特化しています。 たとえば、水域や私有地、危険エリアを除いた安全なエリアから目的地をピックアップし、ルートを生成。 歩行距離を自分の気分に合わせて“冒険”ができます。
 
-ただの地図アプリではなく、人生の道草をデザインするツールです。
+ただの地図アプリではなく、小さな冒険を提供するツールです。
 
 ---
 
@@ -27,11 +27,11 @@ TokoToko は、「歩く」をもっと冒険的にする、新感覚の徒歩�
 
 ## 利用が想定される外部 API と利用目的
 
-| API 名 / 技術                                              | 利用目的                                                   | 無料プラン / 備考                                           | 優先度        |
-| ---------------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------- | ------------- |
-| **Leaflet.js + 地図タイル API**（OSM / Mapbox / Maptiler） | 軽量なマップ表示、ルート線描画、ピン、ズーム演出           | 無料プランあり（OSM は完全無料）Mapbox は上限あり（50k/月） | ◎（MVP 中核） |
-| **Nominatim (OSM)**                                        | 住所 ↔ 緯度経度変換`locations.local_name` 自動入力に利用   | 完全無料（ただし大量アクセス制限）商用は Self-host が推奨   | ○             |
-| **PostGIS**                                                | 空間検索、危険エリア除外、県境判定、距離計算など全地理処理 | 無料（PostgreSQL 拡張）必須ライブラリ                       | ◎（中核技術） |
+| API 名 / 技術                                              | 利用目的                                                 | 無料プラン / 備考                                           | 優先度        |
+| ---------------------------------------------------------- | -------------------------------------------------------- | ----------------------------------------------------------- | ------------- |
+| **Leaflet.js + 地図タイル API**（OSM / Mapbox / Maptiler） | 軽量なマップ表示、ルート線描画、ピン、ズーム演出         | 無料プランあり（OSM は完全無料）Mapbox は上限あり（50k/月） | ◎（MVP 中核） |
+| **Nominatim (OSM)**                                        | 住所 ↔ 緯度経度変換`locations.local_name` 自動入力に利用 | 完全無料（ただし大量アクセス制限）商用は Self-host が推奨   | ○             |
+| **PostGIS**                                                | 空間検索、県境判定、距離計算など全地理処理               | 無料（PostgreSQL 拡張）必須ライブラリ                       | ◎（中核技術） |
 
 ## 追加機能（将来的な差別化拡張）
 
@@ -88,59 +88,84 @@ TokoToko は、「歩く」をもっと冒険的にする、新感覚の徒歩�
 
 ## 1. users（ユーザー）
 
-| カラム名      | 型        | 制約             | 説明               |
-| ------------- | --------- | ---------------- | ------------------ |
-| id            | UUID      | PK               | ユーザー ID        |
-| email         | STRING    | UNIQUE, NOT NULL | メールアドレス     |
-| password_hash | STRING    | NULL 可          | パスワードハッシュ |
-| provider      | STRING    | NULL 可          | OAuth プロバイダー |
-| created_at    | TIMESTAMP | NOT NULL         | 作成日時           |
+| カラム名      | 型        | 制約     | 説明               |
+| ------------- | --------- | -------- | ------------------ |
+| id            | STRING    | PK       | ユーザー ID        |
+| email         | STRING    | NULL 可  | メールアドレス     |
+| password_hash | STRING    | NULL 可  | パスワードハッシュ |
+| provider      | STRING    | NULL 可  | OAuth プロバイダー |
+| created_at    | TIMESTAMP | NOT NULL | 作成日時           |
 
-### 2. adventures（冒険）
+### 2. adventures（冒険管理テーブル）
 
-| カラム名       | 型        | 制約         | 説明                                               |
-| -------------- | --------- | ------------ | -------------------------------------------------- |
-| id             | UUID      | PK           | 冒険 ID                                            |
-| user_id        | UUID      | FK(users.id) | ユーザー ID                                        |
-| status         | STRING    | NOT NULL     | ステータス（planned/in_progress/completed/failed） |
-| failure_reason | STRING    | NULL 可      | 失敗理由                                           |
-| total_distance | FLOAT     | NULL 可      | 実際に生成された総距離（km）                       |
-| created_at     | TIMESTAMP | NOT NULL     | 作成日時                                           |
+目的：冒険セッションの管理、進行状況追跡
 
-### 3. adventure_waypoints（経由地点）
+| カラム名                | 型        | 制約         | 説明                                               |
+| ----------------------- | --------- | ------------ | -------------------------------------------------- |
+| id                      | STRING    | PK           | 冒険 ID                                            |
+| user_id                 | STRING    | FK(users.id) | ユーザー ID                                        |
+| status                  | STRING    | NOT NULL     | ステータス（planned/in_progress/completed/failed） |
+| failure_reason          | STRING    | NULL 可      | 失敗理由                                           |
+| planned_distance_meters | FLOAT     | NOT NULL     | ユーザーが設定した総距離（m）                      |
+| waypoint_count          | INT       | NOT NULL     | 中間地点数、UI 表示と生成制御用                    |
+| created_at              | TIMESTAMP | NOT NULL     | 作成日時                                           |
 
-| カラム名     | 型        | 制約              | 説明                                                |
-| ------------ | --------- | ----------------- | --------------------------------------------------- |
-| id           | UUID      | PK                | 経由地点 ID                                         |
-| adventure_id | UUID      | FK(adventures.id) | 冒険 ID                                             |
-| sequence     | INTEGER   | NOT NULL          | 順番（1, 2, 3...）                                  |
-| spot_type    | STRING    | NOT NULL          | スポット種別（park/restaurant/scenic/tourist_spot） |
-| latitude     | FLOAT     | NOT NULL          | 緯度                                                |
-| longitude    | FLOAT     | NOT NULL          | 経度                                                |
-| created_at   | TIMESTAMP | NOT NULL          | 作成日時                                            |
+### 3. adventures_waypoints（ウェイポイント管理テーブル）
 
-### 4. adventure_preferences（冒険設定）
+目的：地図上のマーカー表示、ルート生成の起終点、到達判定
 
-| カラム名          | 型        | 制約                      | 説明             |
-| ----------------- | --------- | ------------------------- | ---------------- |
-| id                | UUID      | PK                        | 設定 ID          |
-| adventure_id      | UUID      | FK(adventures.id), UNIQUE | 冒険 ID          |
-| total_distance_km | FLOAT     | NOT NULL                  | ユーザー希望距離 |
-| waypoint_count    | INTEGER   | NOT NULL                  | 経由地点数       |
-| created_at        | TIMESTAMP | NOT NULL                  | 作成日時         |
+| カラム名      | 型        | 制約              | 説明                                            |
+| ------------- | --------- | ----------------- | ----------------------------------------------- |
+| id            | STRING    | PK                | 経由地点 ID                                     |
+| adventure_id  | STRING    | FK(adventures.id) | 冒険 ID                                         |
+| sequence      | INT       | NOT NULL          | 地点の順番（0=出発地, 最大値=目的地）進行制御用 |
+| waypoint_type | STRING    | NOT NULL          | マーカーの色、アイコン用                        |
+| latitude      | FLOAT     | NOT NULL          | 緯度（地図マーカー表示）                        |
+| longitude     | FLOAT     | NOT NULL          | 経度（地図マーカー表示）                        |
+| location_name | STRING    | NULL 可           | 地点名                                          |
+| address       | STRING    | NULL 可           | 住所（詳細地点表示用）                          |
+| poi_source_id | STRING    | NULL 可           | 外部 POI API の ID（Google Places ID 等）       |
+| poi_source    | STRING    | NULL 可           | データ取得元 API（google_places/OSM 等）        |
+| created_at    | TIMESTAMP | NOT NULL          | 作成日時                                        |
 
-### 5. routes（ルート）
+poi_source の例（大阪城の場合）
 
-| カラム名       | 型        | 制約              | 説明               |
-| -------------- | --------- | ----------------- | ------------------ |
-| id             | UUID      | PK                | ルート ID          |
-| adventure_id   | UUID      | FK(adventures.id) | 冒険 ID            |
-| route_json     | JSONB     | NOT NULL          | GeoJSON 形式ルート |
-| total_distance | FLOAT     | NOT NULL          | 各地点間の距離     |
-| total_duration | INTEGER   | NOT NULL          | 所要時間（分）     |
-| created_at     | TIMESTAMP | NOT NULL          | 作成日時           |
+{
+"poiSource": "openstreetmap",
+"poiSourceId": "1234567890abcdef"
+}
 
-### 6. locations（POI 参照用マスターデータ、外部 API から持ってくるのでローカルの postgress にテーブルを作らなくてもいい）
+### 4. routes（ルート管理テーブル）
+
+目的： 地図上のルート線描画、徒歩ナビゲーション、距離・時間表示
+
+| カラム名            | 型        | 制約              | 説明                                                                         |
+| ------------------- | --------- | ----------------- | ---------------------------------------------------------------------------- |
+| id                  | STRING    | PK                | ルート ID                                                                    |
+| adventure_id        | STRING    | FK(adventures.id) | 冒険 ID                                                                      |
+| from_waypoint       | STRING    | NULL 可           | 出発地点 ID（NULL の場合は現在地から）ルートの出発地点（最初の POI）を指す。 |
+| to_waypoint         | STRING    | NOT NULL          | 経路の到着地点。                                                             |
+| segment_order       | INT       | NOT NULL          | セグメントの順序(ルート区間の順序)                                           |
+| route_json          | JSON      | NOT NULL          | GeoJSON 形式ルート（Leaflet 描画用）                                         |
+| distance_meters     | FLOAT     | NOT NULL          | 各地点間の距離(M)進捗計算用                                                  |
+| duration_minutes    | INT       | NOT NULL          | 推定所要時間（分）                                                           |
+| transportation_mode | STRING    | NOT NULL          | 移動手段（徒歩固定）                                                         |
+| created_at          | TIMESTAMP | NOT NULL          | 作成日時                                                                     |
+
+```jsx
+Adventure: 冒険A
+  ├── Waypoint1 (id: a)
+  ├── Waypoint2 (id: b)
+  └── Waypoint3 (id: c)
+
+Routes テーブルにはこう記録される：
+
+1. from: null(現在地) → to: a      ← 冒険のスタート地点
+2. from: a    → to: b
+3. from: b    → to: c      ← 最終目的地
+```
+
+### 5. locations（POI 参照用マスターデータ、外部 API から持ってくるのでローカルの postgress にテーブルを作らなくてもいい）
 
 | カラム名      | 型        | 制約     | 説明                                              |
 | ------------- | --------- | -------- | ------------------------------------------------- |
@@ -170,13 +195,94 @@ TokoToko は、「歩く」をもっと冒険的にする、新感覚の徒歩�
 
 # MVP
 
+---
+
 | 項目                                 | 内容                                 | 必須 |
 | ------------------------------------ | ------------------------------------ | ---- |
 | 現在地の取得                         | GPS で現在地取得                     | ◎    |
 | 距離の指定                           | 例：3km / 5km / 10km など            | ◎    |
 | ランダムな目的地生成                 | 範囲内で 1 地点抽出                  | ◎    |
-| 徒歩ルート生成                       | 現在地 → 目的地                      | ◎    |
+| 徒歩ルート生成                       | 現在地 →p1→p2→ 目的地                | ◎    |
 | 地図表示                             | Leaflet.js でルート可視化            | ◎    |
 | 地点が水域・立入禁止でないことを確認 | PostGIS でフィルタ                   | ○    |
 | 旅の履歴保存                         | `adventures`, `routes` 保存          | ○    |
 | 冒険スタート演出                     | 地図のズームイン、アニメーションなど | ○    |
+
+---
+
+## ルート生成の例
+
+## 現在地 → 東京駅 → 表参道 → 新宿
+
+### Waypoints（ウェイポイント）
+
+`waypoints = [
+  {
+    id: "wp-001",
+    sequence: 0,
+    waypointType: "START",
+    locationName: "東京駅",
+    latitude: 35.6812,
+    longitude: 139.7671
+  },
+  {
+    id: "wp-002",
+    sequence: 1,
+    waypointType: "INTERMEDIATE",
+    locationName: "表参道",
+    latitude: 35.6586,
+    longitude: 139.7454
+  },
+  {
+    id: "wp-003",
+    sequence: 2,
+    waypointType: "DESTINATION",
+    locationName: "新宿",
+    latitude: 35.6938,
+    longitude: 139.7036
+  }
+]`
+
+### Routes（ルート）
+
+`routes = [
+  {
+    id: "route-001",
+    fromWaypointId: null,      *// 現在地から（ウェイポイントではない）*
+    toWaypointId: "wp-001",    *// 東京駅へ*
+    distanceMeters: 1500,
+    durationMinutes: 18,
+    routeJson: { */* 現在地→東京駅の経路データ */* }
+  },
+  {
+    id: "route-002",
+    fromWaypointId: "wp-001",  *// 東京駅から*
+    toWaypointId: "wp-002",    *// 表参道へ*
+    distanceMeters: 3200,
+    durationMinutes: 35,
+    routeJson: { */* 東京駅→表参道の経路データ */* }
+  },
+  {
+    id: "route-003",
+    fromWaypointId: "wp-002",  *// 表参道から*
+    toWaypointId: "wp-003",    *// 新宿へ*
+    distanceMeters: 2800,
+    durationMinutes: 30,
+    routeJson: { */* 表参道→新宿の経路データ */* }
+  }
+]`
+
+---
+
+## UI の流れ
+
+ルート構成の最終形（MVP レベルでも最低限必要）
+
+```
+
+[現在地] → [スポット1] → [スポット2] → [スポット3] → [目的地]
+
+```
+
+- スポット 1〜3：ユーザーが選んだ種別（例：公園、神社、景観等）に従ってランダム抽出
+- 目的地：完全にランダム or 条件付きランダム
