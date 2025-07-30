@@ -9,64 +9,87 @@ generator client {
 }
 
 model User {
-    id           Int      @id @default(autoincrement())
-    email        String   @unique
+    id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    email        String?  @unique
     passwordHash String?  @map("password_hash")
-    provider     String?  @default("google")
+    provider     String?
     createdAt    DateTime @default(now()) @map("created_at")
 
+    // Relations
     adventures Adventure[]
+
+    @@map("users")
 }
 
 model Adventure {
-    id            Int      @id @default(autoincrement())
-    status        String
-    failureReason String?  @map("failure_reason") //ルート生成が失敗した場合の理由
-    totalDistance Float    @map("total_distance")
-    createdAt     DateTime @default(now()) @map("created_at")
+    id                    String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    userId                String          @map("user_id") @db.Uuid
+    status                AdventureStatus @default(PLANNED)
+    failureReason         String?         @map("failure_reason")
+    plannedDistanceMeters Float           @map("planned_distance_meters")
+    waypointCount         Int             @default(0) @map("waypoint_count")
+    createdAt             DateTime        @default(now()) @map("created_at")
 
-    userId     Int
-    user       User                 @relation(fields: [userId], references: [id])
-    waypoints  AdventureWaypoint[]
-    preference AdventurePreference?
-    Route      Route[]
+    // Relations
+    user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+    waypoints AdventureWaypoint[]
+    routes    Route[]
+
+    @@map("adventures")
 }
 
 model AdventureWaypoint {
-    id           Int      @id @default(autoincrement())
+    id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    adventureId  String       @map("adventure_id") @db.Uuid
     sequence     Int
-    spotType     String   @map("spot_type")
+    waypointType WaypointType @map("waypoint_type")
+    poiCategory  String?      @map("poi_category")
     latitude     Float
     longitude    Float
-    locationName String?  @map("location_name")
-    createdAt    DateTime @default(now()) @map("created_at")
+    locationName String?      @map("location_name")
+    poiSourceId  String?      @map("poi_source_id")
+    poiSource    String?      @map("poi_source")
+    address      String?
+    createdAt    DateTime     @default(now()) @map("created_at")
 
-    adventureId Int
-    adventure   Adventure @relation(fields: [adventureId], references: [id])
+    // Relations
+    adventure  Adventure @relation(fields: [adventureId], references: [id], onDelete: Cascade)
+    routesFrom Route[]   @relation("FromWaypoint")
+    routesTo   Route[]   @relation("ToWaypoint")
 
     @@unique([adventureId, sequence])
-    @@map("adventure_waypoints")
-}
-
-model AdventurePreference {
-    id              Int      @id @default(autoincrement())
-    totalDistanceKm Float    @map("total_distance_km")
-    waypointCount   Int      @map("waypoint_count")
-    createdAt       DateTime @default(now()) @map("created_at")
-
-    adventureId Int       @unique
-    adventure   Adventure @relation(fields: [adventureId], references: [id])
-
-    @@map("adventures_preferences")
+    @@map("adventures_waypoints")
 }
 
 model Route {
-    id            Int      @id @default(autoincrement())
-    routeJson     Json     @map("route_json")
-    totalDistance Float    @map("total_distance") //各地点間の距離
-    totalDulation Int      @map("total_dulation")
-    createdAt     DateTime @default(now()) @map("created_at")
+    id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    adventureId        String   @map("adventure_id") @db.Uuid
+    fromWaypointId     String?  @map("from_waypoint_id") @db.Uuid
+    toWaypointId       String   @map("to_waypoint_id") @db.Uuid
+    routeJson          Json     @map("route_json")
+    distanceMeters     Float    @map("distance_meters")
+    durationMinutes    Int      @map("duration_minutes")
+    transportationMode String   @default("walking") @map("transportation_mode")
+    createdAt          DateTime @default(now()) @map("created_at")
 
-    adventureId Int
-    adventure   Adventure @relation(fields: [adventureId], references: [id])
+    // Relations
+    adventure    Adventure          @relation(fields: [adventureId], references: [id], onDelete: Cascade)
+    fromWaypoint AdventureWaypoint? @relation("FromWaypoint", fields: [fromWaypointId], references: [id])
+    toWaypoint   AdventureWaypoint  @relation("ToWaypoint", fields: [toWaypointId], references: [id])
+
+    @@map("routes")
+}
+
+// Enumsで状態と種別管理
+enum AdventureStatus {
+    PLANNED     @map("planned")
+    IN_PROGRESS @map("in_progress")
+    COMPLETED   @map("completed")
+    FAILED      @map("failed")
+}
+
+enum WaypointType {
+    START        @map("start")
+    INTERMEDIATE @map("intermediate")
+    DESTINATION  @map("destination")
 }
