@@ -7,7 +7,7 @@ CREATE TYPE "WaypointType" AS ENUM ('start', 'intermediate', 'destination');
 -- CreateTable
 CREATE TABLE "users" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
-    "email" TEXT,
+    "email" TEXT NOT NULL,
     "password_hash" TEXT,
     "provider" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
