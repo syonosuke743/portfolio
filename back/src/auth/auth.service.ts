@@ -90,7 +90,7 @@ export class AuthService {
         });
 
         if(user){
-            //既存ユーザーの場合、作成
+            //既存ユーザーの場合、更新してから
             if (!user.provider && provider){
                 user = await this.prisma.user.update({
                     where:{id: user.id},
@@ -121,9 +121,9 @@ export class AuthService {
 
         const accessToken = this.jwtService.sign(payload);
 
-        const refreshToken = this.jwtService.sign(payload,{
-            expiresIn: '60d',
-        })
+        // const refreshToken = this.jwtService.sign(payload,{
+        //     expiresIn: '60d',
+        // })
 
         return{
             user:{
@@ -133,7 +133,7 @@ export class AuthService {
                 createdAt: user.createdAt,
             },
             accessToken,
-            refreshToken,
+            //refreshToken,
         };
     }
 

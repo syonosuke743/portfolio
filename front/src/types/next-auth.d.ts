@@ -1,16 +1,27 @@
 // src/types/next-auth.d.ts などを作成して以下を記述
 
-import NextAuth, { DefaultSession, DefaultUser, DefaultJWT } from "next-auth";
+import NextAuth, { DefaultSession} from "next-auth";
 
-declare module "next-auth" {
+declare module "next-auth"{
   interface Session {
     accessToken?: string;
-    user: DefaultSession["user"];
+    user: {
+      id:string;
+      provider?: string;
+    } & DefaultSession["user"];
+  }
+
+  interface User {
+    accessToken?: string;
+    provider?: string;
   }
 }
 
-declare module "next-auth/jwt" {
-  interface JWT extends DefaultJWT {
+declare module "next-auth/jwt"{
+  interface JWT{
     accessToken?: string;
+    provider?: string;
   }
 }
+
+
