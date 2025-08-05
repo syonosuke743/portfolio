@@ -2,7 +2,13 @@ import GoogleProvider from "next-auth/providers/google";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://back:3001";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ;
+const backendUrlDocker = process.env.BACKEND_URL ;
+
+// デバッグ用ログ
+// console.log('NextAuth route loaded')
+// console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'Set' : 'Not set')
+// console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? 'Set' : 'Not set')
 
 
 export const authOptions: NextAuthOptions = {
@@ -24,7 +30,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          const response = await fetch(`${backendUrl}/auth/login`, {
+          const response = await fetch(`${backendUrlDocker}/auth/login`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -58,7 +64,7 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account, profile }) {
       if (account?.provider === 'google') {
         try {
-          const response = await fetch(`${backendUrl}/auth/google`, {
+          const response = await fetch(`${backendUrlDocker}/auth/google`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

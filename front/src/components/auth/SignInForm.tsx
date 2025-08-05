@@ -30,7 +30,7 @@ const SignInForm = () => {
             }else{
                 //セッションを待つ
                 await getSession();
-                router.push("/Home")
+                router.push("/home")
             }
         } catch (err) {
             setError("エラーが起きました。もう一度お試しください");
@@ -40,13 +40,13 @@ const SignInForm = () => {
     };
 
     const handleGoogleSignIn = () => {
-        signIn("google", {callbackUrl: "/Home"});
+        signIn("google", {callbackUrl: "/home"});
     }
 
 
   return (
     <div className='max-w-md mx-auto bg-white p-8 rounded-lg shadow-md'>
-        <h2 className='mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded'>Sign In</h2>
+        <h2 className='text-2xl font-bold mb-6 text-center'>Sign In</h2>
         {error && (
         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
           {error}

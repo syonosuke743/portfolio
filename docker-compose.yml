@@ -7,7 +7,8 @@ services:
     volumes:
       - ./front:/app:cached
       - /app/node_modules
-      - ./front/.env.local:/app/.env.local:ro
+    env_file:
+      - ./front/.env.local
     depends_on:
       - back
 

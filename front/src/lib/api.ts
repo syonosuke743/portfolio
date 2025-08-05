@@ -1,7 +1,7 @@
 
 
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://back:3001";
 
 export interface AuthResponse{
     user: {

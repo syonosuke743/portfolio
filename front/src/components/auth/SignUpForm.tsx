@@ -36,10 +36,13 @@ const SignUpForm = () => {
                 redirect: false,
             });
 
+            console.log('Auto login result:', result);
+
             if (result?.error){
-                setError("登録に成功しましたが、オートログインに失敗しました。サインインページからログインしてください。")
+                console.error('Auto login error:', result.error);
+                setError("ログインエラー" + result.error)
             }else{
-                router.push("/Home");
+                router.push("/home");
             }
         }catch (err: any){
             setError(err.message || "アカウントの作成に失敗しました。")
