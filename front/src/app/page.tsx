@@ -9,8 +9,8 @@ export default function Home() {
 
   return (
     <>
-      <h1 className="">TokoToko</h1>
-      <p>ランダムなスポットを提案し、新しい発見を届ける</p>
+      <h1 className="text-center">TokoToko</h1>
+      <p className="text-center">ランダムなスポットを提案し、新しい発見を届ける</p>
       <Image
         src="/492.png"
         alt="都市の画像"
