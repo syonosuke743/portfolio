@@ -4,6 +4,7 @@ import { authApi } from "@/lib/api"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useState } from 'react'
+import { Button } from "../ui/button"
 
 const SignUpForm = () => {
 
@@ -57,7 +58,7 @@ const SignUpForm = () => {
 
   return (
     <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
-    <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
+    <h2 className="text-2xl font-bold mb-9 text-center">アカウントの作成</h2>
 
     {error && (
       <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
@@ -77,6 +78,7 @@ const SignUpForm = () => {
           onChange={(e) => setEmail(e.target.value)}
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
           required
+          placeholder='example@xxx.com'
         />
       </div>
 
@@ -92,6 +94,7 @@ const SignUpForm = () => {
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
           minLength={6}
           required
+          placeholder='6文字以上'
         />
       </div>
 
@@ -104,19 +107,19 @@ const SignUpForm = () => {
           id="confirmPassword"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 "
           minLength={6}
           required
         />
       </div>
 
-      <button
+      <Button
         type="submit"
         disabled={isLoading}
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-2xl shadow-sm text-sm font-medium text-white bg-orange-400 hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50"
       >
         {isLoading ? 'Creating account...' : 'Sign Up'}
-      </button>
+      </Button>
     </form>
 
     <div className="mt-6">
@@ -129,9 +132,9 @@ const SignUpForm = () => {
         </div>
       </div>
 
-      <button
+      <Button
         onClick={handleGoogleSignUp}
-        className="mt-3 w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        className="mt-3 w-full flex justify-center py-2 px-4 border border-gray-300 rounded-2xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2"
       >
         <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -139,14 +142,14 @@ const SignUpForm = () => {
           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
           <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
         </svg>
-        Sign up with Google
-      </button>
+        Googleアカウントで登録
+      </Button>
     </div>
 
     <p className="mt-4 text-center text-sm text-gray-600">
-      Already have an account?{' '}
+      既にアカウントがある場合{' '}
       <a href="/auth/signin" className="font-medium text-indigo-600 hover:text-indigo-500">
-        Sign in
+        ログイン
       </a>
     </p>
   </div>
