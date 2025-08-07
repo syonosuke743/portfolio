@@ -19,7 +19,7 @@ export default function Home() {
         priority
       />
       <Button asChild>
-        <Link href="/auth/login">Login</Link>
+        <Link href="/auth/signin">Login</Link>
       </Button>
       <Button asChild>
         <Link href="/auth/signup">Sign Up</Link>
