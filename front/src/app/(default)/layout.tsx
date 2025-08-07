@@ -20,15 +20,13 @@ export default function MinimalLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <div className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Header />
         <Providers>
           {/* Header/Footer を表示しない */}
           {children}
         </Providers>
         <Footer />
-      </body>
-    </html>
+      </div>
   );
 }

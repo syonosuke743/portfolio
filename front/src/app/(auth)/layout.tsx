@@ -1,7 +1,6 @@
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
-import { Providers } from "../providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,13 +18,9 @@ export default function MinimalLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers>
+      <div className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           {/* Header/Footer を表示しない */}
           {children}
-        </Providers>
-      </body>
-    </html>
+      </div>
   );
 }
