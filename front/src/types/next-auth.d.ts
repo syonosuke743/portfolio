@@ -1,4 +1,4 @@
-// src/types/next-auth.d.ts などを作成して以下を記述
+//authの型定義
 
 import NextAuth, { DefaultSession} from "next-auth";
 
