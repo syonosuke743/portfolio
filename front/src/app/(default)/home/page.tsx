@@ -167,7 +167,7 @@ export default function Page() {
       console.log("送信データ:", JSON.stringify(adventureData, null,2))
 
       //API呼び出し
-      const response = await fetch("/api/adventures",{
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/adventures`,{
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -178,11 +178,12 @@ export default function Page() {
       if (response.ok){
         const result = await response.json();
         console.log("Adventure created:", result)
-        alert("ルートが正常に作成されました")
+        alert("ルートが正常に作成されました!MAPページに移動します。")
+        router.push(`/routes/${result.id}`)
       }else{
         const error = await response.json()
         console.error('API Error:', error)
-        alert('エラーが発生しました: ' + (error.message || 'Unknown error'))
+        alert('エラーが発生しました: ' + (error.message || response.statusText))
       }
     }catch{
       console.error('Network Error:',)
