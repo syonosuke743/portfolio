@@ -1,16 +1,20 @@
 import { Module } from '@nestjs/common';
 import { AdventuresModule } from './adventures/adventures.module';
-import { WaypointsModule } from './waypoints/waypoints.module';
-import { RoutesModule } from './routes/routes.module';
-import { PoiModule } from './poi/poi.module';
-import { AdventureGeneratorModule } from './adventure-generator/adventure-generator.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { GoogleMapsModule } from './google-maps/google-maps.module';
+import { ConfigModule } from '@nestjs/config';
 
 
 
 @Module({
 
-  imports: [ AdventuresModule, WaypointsModule, RoutesModule, PoiModule, AdventureGeneratorModule, AuthModule, UsersModule, ]
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    AdventuresModule ,  AuthModule, UsersModule, GoogleMapsModule,
+  ]
 })
 export class AppModule { }

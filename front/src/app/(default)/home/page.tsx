@@ -121,7 +121,7 @@ export default function Page() {
       const isLast = index === poiList.length - 1
 
       waypoints.push({
-        sequence: 0,
+        sequence: sequence,
         waypointType: isLast ? WaypointType.DESTINATION : WaypointType.INTERMEDIATE,
         poiCategory: poi,
         latitude: 0,  //後からAPIで取得
@@ -323,10 +323,10 @@ export default function Page() {
 
       {/* 生成ボタンの説明 */}
       {((!currentLocation || poiList.length === 0) || !session?.user?.id) && (
-        <div className="text-center text-sm text-white/70 -mt-4 mb-4">
+        <div className="text-center text-sm text-red-500 -mt-4 mb-4">
           {!session?.user?.id && "認証情報、"}
           {!currentLocation && "現在地情報、"}
-          {poiList.length === 0 && "スポット選択が"}
+          {poiList.length === 0 && "スポット選択が1つ以上"}
           必要です
         </div>
       )}
