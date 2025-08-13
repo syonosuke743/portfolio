@@ -49,7 +49,7 @@ export class AdventuresService {
       await this.updateWaypointCoordinates(adventure.id, adventure.waypoints, adventure.plannedDistanceMeters);
 
       // 3. ランダム目的地を追加
-      const currentLocation = adventure.waypoints.find(w => w.waypointType === 'start');
+      const currentLocation = adventure.waypoints.find(w => w.waypointType === 'START');
       if (currentLocation) {
         await this.addRandomDestination(
           adventure.id,
@@ -94,7 +94,7 @@ export class AdventuresService {
   }
 
   private async updateWaypointCoordinates(adventureId: string, waypoints: any[], maxDistance: number) {
-    const startWaypoint = waypoints.find(w => w.waypointType === 'start');
+    const startWaypoint = waypoints.find(w => w.waypointType === 'START');
     if (!startWaypoint) {
       this.logger.warn('No start waypoint found for coordinate updates');
       return;
