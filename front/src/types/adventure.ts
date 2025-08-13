@@ -1,17 +1,17 @@
 //nestのDTO用の型定義
 
 export enum AdventureStatus {
-    PLANNED = 'planned',
-    IN_PROGRESS = 'in_progress',
-    COMPLETED = 'completed',
-    FAILED = 'failed'
-  }
+  PLANNED = "PLANNED",
+  IN_PROGRESS = "IN_PROGRESS", 
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED"
+}
 
-  export enum WaypointType {
-    START = 'start',
-    INTERMEDIATE = 'intermediate',
-    DESTINATION = 'destination'
-  }
+export enum WaypointType {
+  START = "START",
+  INTERMEDIATE = "INTERMEDIATE",
+  DESTINATION = "DESTINATION"
+}
 
   export interface CreateWaypointDto {
     sequence: number;

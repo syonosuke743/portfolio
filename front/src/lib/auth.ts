@@ -2,14 +2,8 @@ import GoogleProvider from "next-auth/providers/google";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ;
-const backendUrlDocker = process.env.BACKEND_URL ;
-
-// デバッグ用ログ
-// console.log('NextAuth route loaded')
-// console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'Set' : 'Not set')
-// console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? 'Set' : 'Not set')
-
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+const backendUrlDocker = process.env.BACKEND_URL;
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -61,7 +55,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account}) {
+    async signIn({ user, account }) {
       if (account?.provider === 'google') {
         try {
           const response = await fetch(`${backendUrlDocker}/auth/google`, {
@@ -71,9 +65,7 @@ export const authOptions: NextAuthOptions = {
             },
             body: JSON.stringify({
               email: user.email,
-              name: user.name,
               provider: 'google',
-              providerId: account.providerAccountId,
             }),
           });
 
@@ -114,4 +106,6 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
   },
+  // 本番環境ではdebugをfalseに設定
+  debug: false,
 };
