@@ -13,7 +13,7 @@ export class AdventuresController {
 
   @Get('user/:userId')
   async findByUser(@Param('userId') userId: string) {
-    return this.adventuresService.findOne(userId);
+    return this.adventuresService.findByUser(userId);
   }
 
   @Get(':id')

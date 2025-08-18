@@ -2,7 +2,7 @@
 
 export enum AdventureStatus {
   PLANNED = "PLANNED",
-  IN_PROGRESS = "IN_PROGRESS", 
+  IN_PROGRESS = "IN_PROGRESS",
   COMPLETED = "COMPLETED",
   FAILED = "FAILED"
 }
@@ -34,7 +34,7 @@ export enum WaypointType {
     waypoints: CreateWaypointDto[];
   }
 
-  // API レスポンス用の型（将来的に使用）
+  // API レスポンス用の型
   export interface AdventureResponse {
     id: string;
     userId: string;

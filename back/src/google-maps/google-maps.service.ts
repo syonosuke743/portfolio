@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-
 interface Coordinates {
     lat: number;
     lng: number;
@@ -12,13 +11,13 @@ interface POIResult {
     lng: number;
     name: string;
     address: string;
-    placeId?: string
+    placeId?: string;
 }
 
 interface RouteResult {
     routeJson: any;
-    distance: number;//メートル単位
-    duration: number;//メートル単位
+    distance: number;
+    duration: number;
 }
 
 @Injectable()
@@ -26,12 +25,20 @@ export class GoogleMapsService {
     private readonly logger = new Logger(GoogleMapsService.name);
     private readonly apiKey: string;
     private readonly baseUrl = 'https://maps.googleapis.com/maps/api';
+    private readonly newPlacesUrl = 'https://places.googleapis.com/v1/places';
 
-    constructor(private configService: ConfigService){
-        this.apiKey = this.configService.get<string>('GOOGLE_MAPS_API_KEY')
+    constructor(private configService: ConfigService) {
+        this.apiKey = this.configService.get<string>('GOOGLE_MAPS_API_KEY');
+
+        if (!this.apiKey) {
+            this.logger.error('Google Maps API Key is not configured');
+            throw new Error('Google Maps API Key is missing');
+        }
+
+        const maskedKey = this.apiKey.substring(0, 4) + '...' + this.apiKey.substring(this.apiKey.length - 4);
+        this.logger.log(`Google Maps API Key configured: ${maskedKey}`);
     }
 
-    //POIカテゴリをGoogle Places APIのタイプにマッピング
     private mapPOICategory(category: string): string {
         const categoryMap: {[key: string]: string} = {
             'food': 'restaurant',
@@ -45,86 +52,146 @@ export class GoogleMapsService {
         return categoryMap[category] || category;
     }
 
-    //指定カテゴリのPOIを検索
-    async searchPOI(category: string, location: Coordinates, radius: number = 1000) : Promise<POIResult | null>{
-        try{
-        const type = this.mapPOICategory(category);
-        const url = `${this.baseUrl}/place/nearbysearch/json`;
-        const params = new URLSearchParams({
-            location: `${location.lat},${location.lng}`,
-            radius: radius.toString(),
-            type: type,
-            key: this.apiKey
-        });
-
-        const response = await fetch(`${url}?${params}`);
-        const data = await response.json();
-
-        if (data.status === "OK" && data.results.length > 0){
-            const place = data.results[0];
-            return {
-                lat: place.geometry.location.lat,
-                lng: place.geometry.location.lng,
-                name: place.name,
-                address: place.vicinity || place.formatted_address || '',
-                placeId: place.place_id
-            };
-        }
-        this.logger.warn(`No POI found for category: ${category}`);
-        return null;
-    } catch (error){
-        this.logger.error(`Failed to search POI for category ${category}:`, error);
-        throw error;
-    }
-}
-
-    //ランダムなPOI検索（目的地用)
-
-    async searchRandomPOI(category: string, location: Coordinates,maxDistance: number): Promise<POIResult | null>{
+    // 新しいPlaces API (New) を使用してPOI検索
+    async searchPOI(category: string, location: Coordinates, radius: number = 1000): Promise<POIResult | null> {
         try {
-            const type = this.mapPOICategory(category);
-            const url = `${this.baseUrl}/place/nearbysearch/json`
+            const includedTypes = [this.mapPOICategory(category)];
 
-            //距離範囲の調整
-            const minRadius = Math.min(500,maxDistance * 0.3);
-            const radius = Math.min(maxDistance,5000);//最大５キロ
+            const requestBody = {
+                includedTypes: includedTypes,
+                maxResultCount: 1,
+                locationRestriction: {
+                    circle: {
+                        center: {
+                            latitude: location.lat,
+                            longitude: location.lng
+                        },
+                        radius: radius
+                    }
+                }
+            };
 
-            const params = new URLSearchParams({
-                location: `${location.lat},${location.lng}`,
-                radius: radius.toString(),
-                key: this.apiKey
+            this.logger.log(`Calling Places API (New): ${this.newPlacesUrl}:searchNearby`);
+            this.logger.log(`Request body: ${JSON.stringify(requestBody, null, 2)}`);
+
+            const response = await fetch(`${this.newPlacesUrl}:searchNearby`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Goog-Api-Key': this.apiKey,
+                    'X-Goog-FieldMask': 'places.displayName,places.location,places.formattedAddress,places.id'
+                },
+                body: JSON.stringify(requestBody)
             });
 
-            const response = await fetch(`${url}?${params}`);
             const data = await response.json();
 
-            if (data.status === 'OK' && data.results.length > 0 ){
-                // ランダムに選択（上位10件から）
-                const candidates = data.results.slice(0, Math.min(10, data.results.length));
-                const randomPlace = candidates[Math.floor(Math.random() * candidates.length)];
-                return{
-                    lat: randomPlace.geometry.location.lat,
-                    lng: randomPlace.geometry.location.lng,
-                    name: randomPlace.name,
-                    address: randomPlace.vicinity || randomPlace.formatted_address || '',
-                    placeId: randomPlace.place_id
+            if (!response.ok) {
+                this.logger.error(`Places API (New) Error: ${response.status}`, data.error || 'No error details');
+                return null;
+            }
+
+            if (data.places && data.places.length > 0) {
+                const place = data.places[0];
+                this.logger.log(`Found POI: ${place.displayName?.text || 'Unknown'} at ${place.location?.latitude}, ${place.location?.longitude}`);
+
+                return {
+                    lat: place.location.latitude,
+                    lng: place.location.longitude,
+                    name: place.displayName?.text || 'Unknown Place',
+                    address: place.formattedAddress || '',
+                    placeId: place.id
                 };
             }
+
+            this.logger.warn(`No POI found for category: ${category}`);
+            return null;
+
+        } catch (error) {
+            this.logger.error(`Failed to search POI for category ${category}:`, error);
+            throw error;
+        }
+    }
+
+    // 新しいPlaces API (New) を使用してランダムPOI検索
+    async searchRandomPOI(category: string, location: Coordinates, maxDistance: number): Promise<POIResult | null> {
+        try {
+            const includedTypes = [this.mapPOICategory(category)];
+            const radius = Math.min(maxDistance, 5000);
+
+            const requestBody = {
+                includedTypes: includedTypes,
+                maxResultCount: 10, // より多くの候補を取得してランダム選択
+                locationRestriction: {
+                    circle: {
+                        center: {
+                            latitude: location.lat,
+                            longitude: location.lng
+                        },
+                        radius: radius
+                    }
+                }
+            };
+
+            this.logger.log(`Calling Places API (New) for random POI: ${this.newPlacesUrl}:searchNearby`);
+
+            const response = await fetch(`${this.newPlacesUrl}:searchNearby`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Goog-Api-Key': this.apiKey,
+                    'X-Goog-FieldMask': 'places.displayName,places.location,places.formattedAddress,places.id'
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                this.logger.error(`Places API (New) Error for random POI: ${response.status}`, data.error || 'No error details');
+                return null;
+            }
+
+            if (data.places && data.places.length > 0) {
+                const randomPlace = data.places[Math.floor(Math.random() * data.places.length)];
+
+                this.logger.log(`Found random POI: ${randomPlace.displayName?.text || 'Unknown'}`);
+
+                return {
+                    lat: randomPlace.location.latitude,
+                    lng: randomPlace.location.longitude,
+                    name: randomPlace.displayName?.text || 'Unknown Place',
+                    address: randomPlace.formattedAddress || '',
+                    placeId: randomPlace.id
+                };
+            }
+
             this.logger.warn(`No random POI found for category: ${category}`);
             return null;
-        } catch (error){
+
+        } catch (error) {
             this.logger.error(`Failed to search random POI for category ${category}:`, error);
             throw error;
         }
     }
 
-    //2点間のルート計算
+    // Directions API はそのまま使用（こちらは新しいAPI）
     async calculateRoute(
         origin: Coordinates,
         destination: Coordinates,
         mode: string = 'walking'
-    ): Promise<RouteResult | null>{
+    ): Promise<RouteResult | null> {
         try {
+            // 座標が無効な場合の早期チェック
+            if (origin.lat === 0 && origin.lng === 0) {
+                this.logger.warn('Origin coordinates are invalid (0,0)');
+                return null;
+            }
+            if (destination.lat === 0 && destination.lng === 0) {
+                this.logger.warn('Destination coordinates are invalid (0,0)');
+                return null;
+            }
+
             const url = `${this.baseUrl}/directions/json`;
             const params = new URLSearchParams({
                 origin: `${origin.lat},${origin.lng}`,
@@ -133,16 +200,45 @@ export class GoogleMapsService {
                 key: this.apiKey
             });
 
-            const response = await fetch(`${url}?${params}`);
+            const fullUrl = `${url}?${params}`;
+            this.logger.log(`Calling Directions API: ${fullUrl.replace(this.apiKey, 'API_KEY_HIDDEN')}`);
+
+            const response = await fetch(fullUrl);
             const data = await response.json();
 
-            if (data.status === 'OK' && data.routes.length > 0) {
+            this.logger.log(`Directions API Response Status: ${data.status}`);
+
+            if (data.status !== 'OK') {
+                this.logger.error(`Directions API Error: ${data.status}`, data.error_message || 'No error message');
+
+                switch (data.status) {
+                    case 'REQUEST_DENIED':
+                        this.logger.error('API key is invalid or API is not enabled');
+                        break;
+                    case 'OVER_QUERY_LIMIT':
+                        this.logger.error('API quota exceeded');
+                        break;
+                    case 'ZERO_RESULTS':
+                        this.logger.warn('No route found between the specified locations');
+                        break;
+                    case 'INVALID_REQUEST':
+                        this.logger.error('Invalid request parameters');
+                        break;
+                }
+
+                return null;
+            }
+
+            if (data.routes.length > 0) {
                 const route = data.routes[0];
                 const leg = route.legs[0];
+
+                this.logger.log(`Route calculated: ${leg.distance.text}, ${leg.duration.text}`);
+
                 return {
                     routeJson: data,
                     distance: leg.distance.value,
-                    duration: Math.ceil(leg.duration.value)
+                    duration: Math.ceil(leg.duration.value / 60) // 分に変換
                 };
             }
 
@@ -150,47 +246,51 @@ export class GoogleMapsService {
                 `No route found between ${origin.lat},${origin.lng} and ${destination.lat},${destination.lng}`
             );
             return null;
+
         } catch (error) {
             this.logger.error(`Failed to calculate route:`, error);
             throw error;
         }
     }
 
-    //複数地点を通るルートを計算
     async calculateMultiWaypointRoute(
         waypoints: Coordinates[],
         mode: string = 'walking'
-    ): Promise<RouteResult[]>{
+    ): Promise<RouteResult[]> {
         const routes: RouteResult[] = [];
 
-        for (let i = 0; i < waypoints.length - 1; i++){
+        for (let i = 0; i < waypoints.length - 1; i++) {
             const route = await this.calculateRoute(waypoints[i], waypoints[i + 1], mode);
-            if(route){
+            if (route) {
                 routes.push(route);
             }
         }
-        return routes
+        return routes;
     }
 
-    //Place IDから詳細情報を取得
-    async getPlaceDetails(placeId: string): Promise <any>{
+    // 新しいPlace Details API を使用
+    async getPlaceDetails(placeId: string): Promise<any> {
         try {
-            const url = `${this.baseUrl}/place/details/json`;
-            const params = new URLSearchParams({
-                place_id : placeId,
-                fields: 'name,formatted_address,geometry,rating,photos',
-                key: this.apiKey
+            const url = `${this.newPlacesUrl}/${placeId}`;
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Goog-Api-Key': this.apiKey,
+                    'X-Goog-FieldMask': 'displayName,formattedAddress,location,rating,photos'
+                }
             });
 
-            const response = await fetch(`${url}?${params}`);
             const data = await response.json();
 
-            if (data.status === 'OK'){
-                return data.results;
+            if (!response.ok) {
+                this.logger.error(`Place Details API Error: ${response.status}`, data.error || 'No error details');
+                return null;
             }
 
-            return null;
-        }catch(error){
+            return data;
+
+        } catch (error) {
             this.logger.error(`Failed to get place details for ${placeId}:`, error);
             throw error;
         }
