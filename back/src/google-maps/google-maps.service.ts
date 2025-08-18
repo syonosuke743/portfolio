@@ -43,11 +43,11 @@ export class GoogleMapsService {
         const categoryMap: {[key: string]: string} = {
             'food': 'restaurant',
             'shopping': 'shopping_mall',
-            'tourist_attraction': 'tourist_attraction',
             'park': 'park',
-            'place_of_worship': 'place_of_worship',
+            'place_of_worship': 'establishment',
             'museum': 'museum',
-            'entertainment': 'amusement_park'
+            'entertainment': 'amusement_park',
+            'sightseeing': 'tourist_attraction'
         };
         return categoryMap[category] || category;
     }
