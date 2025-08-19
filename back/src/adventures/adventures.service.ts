@@ -314,6 +314,36 @@ export class AdventuresService {
     return adventure;
   }
 
+  async remove(id: string) {
+    // まずAdventureが存在するか確認
+    const adventure = await this.prisma.adventure.findUnique({
+      where: { id },
+      select: { id: true, userId: true }
+    });
+
+    if (!adventure) {
+      throw new NotFoundException(`Adventure with ID ${id} not found`);
+    }
+
+    try {
+      // Prismaのカスケード削除を利用してAdventureを削除
+      // 関連するwaypoints、routesも自動的に削除される
+      await this.prisma.adventure.delete({
+        where: { id }
+      });
+
+      this.logger.log(`Adventure ${id} deleted successfully`);
+
+      return {
+        message: 'Adventure deleted successfully',
+        deletedAdventureId: id
+      };
+    } catch (error) {
+      this.logger.error(`Failed to delete adventure ${id}:`, error);
+      throw error;
+    }
+  }
+
   // Adventure状態を更新
   async updateStatus(id: string, status: AdventureStatus, failureReason?: string) {
     const updateData: any = { status };
