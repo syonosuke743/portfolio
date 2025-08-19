@@ -89,7 +89,7 @@ export default function Page() {
       {
         enableHighAccuracy: true,
         timeout: 10000,
-        maximumAge: 300000, //5分間はキャッシュを利用
+        maximumAge: 0
       }
     )
   }
