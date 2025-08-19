@@ -3,6 +3,7 @@ import "../globals.css";
 import { Providers } from "../providers";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import AuthGuard from "@/components/auth/AuthGuard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,10 +22,12 @@ export default function MinimalLayout({
 }) {
   return (
       <div className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+
         <Header />
         <Providers>
-          {/* Header/Footer を表示しない */}
+          <AuthGuard>
           {children}
+          </AuthGuard>
         </Providers>
         <Footer />
       </div>
