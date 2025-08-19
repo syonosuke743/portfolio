@@ -11,8 +11,6 @@ import { CreateAdventureDto,CreateWaypointDto,AdventureStatus,WaypointType} from
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
-
-
 export default function Page() {
   const {data: session, status} = useSession()
   const router = useRouter()
@@ -229,6 +227,7 @@ export default function Page() {
       <Slider
         value={value}
         onValueChange={setValue}
+        min={500}
         max={5000}
         step={100}
         aria-label="距離スライダー"
