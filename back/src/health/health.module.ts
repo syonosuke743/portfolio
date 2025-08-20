@@ -6,6 +6,6 @@ import { PrismaService } from '../prisma/prisma.service';
 @Module({
   controllers: [HealthController],
   providers: [HealthService, PrismaService],
-  exports: [HealthService], // 他のモジュールでも使用可能にする
+  exports: [HealthService],
 })
 export class HealthModule {}
