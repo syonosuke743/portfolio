@@ -1,21 +1,27 @@
 {
-    "name": "TokoToko",
-    "short_name": "TokoToko",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#fb923c",
-    "orientation": "portrait",
-    "icons": [
-      {
-        "src": "../public/icon/tokotokoandroid.png",
-        "sizes": "192x192",
-        "type": "image/png"
-      },
-      {
-        "src": "/icons/icon-512x512.png",
-        "sizes": "512x512",
-        "type": "image/png"
-      }
-    ]
-  }
+  "name": "TokoToko",
+  "short_name": "TokoToko",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#fb923c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon/tokotokoandroid.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon/tokotokoandroid.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon/tokotokoiphone.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
+
