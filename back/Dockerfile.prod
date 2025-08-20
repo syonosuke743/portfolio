@@ -25,7 +25,7 @@ WORKDIR /app
 RUN apk add --no-cache curl
 
 COPY package.json ./
-
+#依存性をproductionのみ
 RUN npm ci --only=production && npm cache clean --force
 
 # ビルド済みのアプリと Prisma Client をコピー
@@ -36,7 +36,7 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/prisma ./prisma
 
 
-#rootでアプリを実行しないようにする
+#rootでアプリを実行しないようにユーザー作成
 RUN addgroup -g 1001 -S nodejs
 
 RUN adduser -S nestjs -u 1001
@@ -45,13 +45,13 @@ RUN chown -R nestjs:nodejs /app
 
 USER nestjs
 
+#cloud run が使うポート
+EXPOSE 8080
 
-EXPOSE 3001
+#HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+#CMD curl -f http://localhost:8080/health || exit 1
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:3001/health || exit 1
-
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy"]
 
 
 
