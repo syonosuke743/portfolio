@@ -106,5 +106,5 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
   },
   // 本番環境ではdebugをfalseに設定
-  debug: false,
+  debug: true,
 };

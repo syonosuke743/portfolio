@@ -17,7 +17,7 @@ async function bootstrap() {
 
   // CORS設定
   const devOrigins = ['http://localhost:3000'];
-  const prodOrigins = ['https://your-vercel-domain.vercel.app']; // 本番フロントのURL
+  const prodOrigins = ['https://portfolio-chi-seven-92.vercel.app']; // 本番フロントのURL
   app.enableCors({
     origin:
       process.env.NODE_ENV === 'production' ? prodOrigins : devOrigins,
