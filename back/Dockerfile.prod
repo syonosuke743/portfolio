@@ -45,4 +45,4 @@ USER nestjs
 EXPOSE 8080
 
 # CMD でマイグレーション後にアプリ起動
-CMD ["sh", "-c", "npx prisma migrate deploy"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]

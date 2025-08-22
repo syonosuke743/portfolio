@@ -34,9 +34,10 @@ const AdventureHistoryPage: React.FC = () => {
       if (!res.ok) throw new Error(`Failed to fetch adventures: ${res.status}`);
       const data: Adventure[] = await res.json();
       setAdventures(data);
-    } catch (err: any) {
-      console.error("Failed to fetch adventures:", err);
-      setError(err.message || "不明なエラー");
+    } catch (error) {
+      console.error("Failed to fetch adventures:", error);
+      const errorMessage = error instanceof Error ? error.message : "不明なエラー";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -52,9 +53,10 @@ const AdventureHistoryPage: React.FC = () => {
       });
       if (!res.ok) throw new Error("削除に失敗しました");
       setAdventures(prev => prev.filter(a => a.id !== id));
-    } catch (err: any) {
-      alert(err.message || "削除に失敗しました");
-      console.error(err);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "削除に失敗しました";
+      alert(errorMessage);
+      console.error(error);
     }
   };
 
@@ -110,6 +112,7 @@ const AdventureHistoryPage: React.FC = () => {
             <button
               onClick={() => fetchAdventures(session.user.id)}
               className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              type="button"
             >
               再試行
             </button>
@@ -140,6 +143,13 @@ const AdventureHistoryPage: React.FC = () => {
                 key={a.id}
                 onClick={() => handleCardClick(a.id)}
                 className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer border border-gray-200"
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    handleCardClick(a.id);
+                  }
+                }}
               >
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
@@ -158,6 +168,7 @@ const AdventureHistoryPage: React.FC = () => {
                         onClick={e => deleteAdventure(a.id, e)}
                         className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                         title="削除"
+                        type="button"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
