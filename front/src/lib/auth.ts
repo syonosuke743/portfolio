@@ -2,7 +2,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const backendUrlDocker = process.env.BACKEND_URL;
+const backendUrl = process.env.BACKEND_URL;
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -11,43 +11,43 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
     CredentialsProvider({
-      id: 'credentials',
-      name: 'credentials',
+      id: "credentials",
+      name: "credentials",
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
+        if (!credentials?.email || !credentials?.password) return null;
 
         try {
-          const response = await fetch(`${backendUrlDocker}/auth/login`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+          const token = process.env.NODE_ENV === "production" ? process.env.API_GATEWAY_TOKEN : undefined;
+
+          const headers: Record<string, string> = {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          };
+
+          const response = await fetch(`${backendUrl}/auth/login`, {
+            method: "POST",
+            headers,
             body: JSON.stringify({
               email: credentials.email,
               password: credentials.password,
             }),
           });
 
-          if (!response.ok) {
-            return null;
-          }
+          if (!response.ok) return null;
 
           const data = await response.json();
-
           return {
             id: data.user.id,
             email: data.user.email,
             accessToken: data.accessToken,
             provider: data.user.provider,
           };
-        } catch (error) {
-          console.error('Auth error:', error);
+        } catch (err) {
+          console.error("Auth error:", err);
           return null;
         }
       },
@@ -55,16 +55,21 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account }) {
-      if (account?.provider === 'google') {
+      if (account?.provider === "google") {
         try {
-          const response = await fetch(`${backendUrlDocker}/auth/google`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+          const token = process.env.NODE_ENV === "production" ? process.env.API_GATEWAY_TOKEN : undefined;
+
+          const headers: Record<string, string> = {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          };
+
+          const response = await fetch(`${backendUrl}/auth/google`, {
+            method: "POST",
+            headers,
             body: JSON.stringify({
               email: user.email,
-              provider: 'google',
+              provider: "google",
             }),
           });
 
@@ -76,8 +81,8 @@ export const authOptions: NextAuthOptions = {
           }
 
           return false;
-        } catch (error) {
-          console.error('Google auth error:', error);
+        } catch (err) {
+          console.error("Google auth error:", err);
           return false;
         }
       }
@@ -99,12 +104,6 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  pages: {
-    signIn: '/auth/signin',
-  },
-  session: {
-    strategy: 'jwt',
-  },
-  // 本番環境ではdebugをfalseに設定
-  debug: true,
+  pages: { signIn: "/auth/signin" },
+  session: { strategy: "jwt" },
 };
