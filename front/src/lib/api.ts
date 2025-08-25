@@ -1,3 +1,4 @@
+import { fetchWithApigateway } from "./fetchWithApigateway";
 
 
 
@@ -25,7 +26,7 @@ export interface RegisterData{
 
 export const authApi = {
     async login(data: LoginData): Promise<AuthResponse>{
-        const response = await fetch(`${backendUrl}/auth/login`,{
+        const response = await fetchWithApigateway(`${backendUrl}/auth/login`,{
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -42,7 +43,7 @@ export const authApi = {
     },
 
     async register(data: RegisterData): Promise<AuthResponse>{
-        const response = await fetch(`${backendUrl}/auth/register`,{
+        const response = await fetchWithApigateway(`${backendUrl}/auth/register`,{
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -59,7 +60,7 @@ export const authApi = {
     },
 
     async getProfile(token: string){
-        const response = await fetch(`${backendUrl}/auth/profile`,{
+        const response = await fetchWithApigateway(`${backendUrl}/auth/profile`,{
             headers:{
                 Authorization: `Bearer ${token}`,
             },

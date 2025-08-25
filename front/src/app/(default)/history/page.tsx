@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Trash2, MapPin, Calendar, Route as RouteIcon } from "lucide-react";
+import { fetchWithApigateway } from "@/lib/fetchWithApigateway";
 
 interface Waypoint {
   id: string;
@@ -30,7 +31,7 @@ const AdventureHistoryPage: React.FC = () => {
   const fetchAdventures = async (userId: string) => {
     try {
       setLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/adventures/user/${userId}`);
+      const res = await fetchWithApigateway(`${process.env.NEXT_PUBLIC_BACKEND_URL}/adventures/user/${userId}`);
       if (!res.ok) throw new Error(`Failed to fetch adventures: ${res.status}`);
       const data: Adventure[] = await res.json();
       setAdventures(data);
@@ -48,7 +49,7 @@ const AdventureHistoryPage: React.FC = () => {
     if (!window.confirm("このアドベンチャーを削除しますか？")) return;
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/adventures/${id}`, {
+      const res = await fetchWithApigateway(`${process.env.NEXT_PUBLIC_BACKEND_URL}/adventures/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("削除に失敗しました");

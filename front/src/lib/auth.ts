@@ -1,8 +1,9 @@
 import GoogleProvider from "next-auth/providers/google";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { fetchWithApigateway } from "@/lib/fetchWithApigateway";
 
-const backendUrl = process.env.BACKEND_URL;
+const backendUrl = process.env.BACKEND_URL!;
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -21,16 +22,8 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) return null;
 
         try {
-          const token = process.env.NODE_ENV === "production" ? process.env.API_GATEWAY_TOKEN : undefined;
-
-          const headers: Record<string, string> = {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          };
-
-          const response = await fetch(`${backendUrl}/auth/login`, {
+          const response = await fetchWithApigateway(`${backendUrl}/auth/login`, {
             method: "POST",
-            headers,
             body: JSON.stringify({
               email: credentials.email,
               password: credentials.password,
@@ -57,16 +50,8 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
         try {
-          const token = process.env.NODE_ENV === "production" ? process.env.API_GATEWAY_TOKEN : undefined;
-
-          const headers: Record<string, string> = {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          };
-
-          const response = await fetch(`${backendUrl}/auth/google`, {
+          const response = await fetchWithApigateway(`${backendUrl}/auth/google`, {
             method: "POST",
-            headers,
             body: JSON.stringify({
               email: user.email,
               provider: "google",
@@ -86,7 +71,6 @@ export const authOptions: NextAuthOptions = {
           return false;
         }
       }
-
       return true;
     },
     async jwt({ token, user, account }) {
