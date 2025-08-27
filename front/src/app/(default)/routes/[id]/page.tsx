@@ -5,7 +5,6 @@ import { AdventureResponse, AdventureStatus } from "@/types/adventure";
 import { useEffect, useState } from "react";
 import { Clock, MapPin, Ruler, ArrowLeft } from "lucide-react";
 import { useRouter, useParams } from 'next/navigation';
-import { fetchWithApigateway } from '@/lib/fetchWithApigateway';
 
 // LeafletマップコンポーネントをSSRを無効にして動的インポート
 const MapComponent = dynamic(() => import('@/components/Map'), {
@@ -36,7 +35,7 @@ const Page = () => {
         setLoading(true);
         setError(null);
 
-        const res = await fetchWithApigateway(`${backendUrl}/adventures/${adventureId}`);
+        const res = await fetch(`${backendUrl}/adventures/${adventureId}`);
 
         if (!res.ok) {
           throw new Error(`Failed to fetch adventure: ${res.status}`);
@@ -64,7 +63,7 @@ const Page = () => {
         setLoading(true);
         setError(null);
 
-        const res = await fetchWithApigateway(`${backendUrl}/adventures/${adventureId}`);
+        const res = await fetch(`${backendUrl}/adventures/${adventureId}`);
 
         if (!res.ok) {
           throw new Error(`Failed to fetch adventure: ${res.status}`);

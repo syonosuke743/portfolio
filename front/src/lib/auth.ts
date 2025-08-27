@@ -1,7 +1,6 @@
 import GoogleProvider from "next-auth/providers/google";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { fetchWithApigateway } from "@/lib/fetchWithApigateway";
 
 const backendUrl = process.env.BACKEND_URL!;
 
@@ -22,8 +21,11 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) return null;
 
         try {
-          const response = await fetchWithApigateway(`${backendUrl}/auth/login`, {
+          const response = await fetch(`${backendUrl}/auth/login`, {
             method: "POST",
+            headers: {
+              'Content-Type': 'application/json',
+            },
             body: JSON.stringify({
               email: credentials.email,
               password: credentials.password,
@@ -50,8 +52,11 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
         try {
-          const response = await fetchWithApigateway(`${backendUrl}/auth/google`, {
+          const response = await fetch(`${backendUrl}/auth/google`, {
             method: "POST",
+            headers: {
+              'Content-Type': 'application/json',
+            },
             body: JSON.stringify({
               email: user.email,
               provider: "google",

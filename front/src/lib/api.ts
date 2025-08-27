@@ -1,7 +1,3 @@
-import { fetchWithApigateway } from "./fetchWithApigateway";
-
-
-
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://back:3001";
 
 export interface AuthResponse{
@@ -26,7 +22,7 @@ export interface RegisterData{
 
 export const authApi = {
     async login(data: LoginData): Promise<AuthResponse>{
-        const response = await fetchWithApigateway(`${backendUrl}/auth/login`,{
+        const response = await fetch(`${backendUrl}/auth/login`,{
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -43,7 +39,7 @@ export const authApi = {
     },
 
     async register(data: RegisterData): Promise<AuthResponse>{
-        const response = await fetchWithApigateway(`${backendUrl}/auth/register`,{
+        const response = await fetch(`${backendUrl}/auth/register`,{
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -60,7 +56,7 @@ export const authApi = {
     },
 
     async getProfile(token: string){
-        const response = await fetchWithApigateway(`${backendUrl}/auth/profile`,{
+        const response = await fetch(`${backendUrl}/auth/profile`,{
             headers:{
                 Authorization: `Bearer ${token}`,
             },

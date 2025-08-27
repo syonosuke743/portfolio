@@ -10,7 +10,6 @@ import { RouteDisplay } from "@/components/RouteDisplay"
 import { CreateAdventureDto,CreateWaypointDto,AdventureStatus,WaypointType} from "@/types/adventure"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { fetchWithApigateway } from "@/lib/fetchWithApigateway"
 
 export default function Page() {
   const {data: session, status} = useSession()
@@ -166,7 +165,7 @@ export default function Page() {
       console.log("送信データ:", JSON.stringify(adventureData, null,2))
 
       //API呼び出し
-      const response = await fetchWithApigateway(`${process.env.NEXT_PUBLIC_BACKEND_URL}/adventures`,{
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/adventures`,{
         method: "POST",
         headers: {
           "Content-Type": "application/json",
