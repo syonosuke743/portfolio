@@ -5,44 +5,44 @@ on:
     branches:
       - main
     paths:
-      - 'back/**'       # back ディレクトリに変更があった場合のみ実行
+      - "back/**" # back ディレクトリに変更があった場合のみ実行
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. コードをチェックアウト
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # 1. コードをチェックアウト
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    # 2. GCP 認証
-    - name: Authenticate to GCP
-      uses: google-github-actions/auth@v1
-      with:
-        credentials_json: ${{ secrets.GCP_SA_KEY }}
+      # 2. GCP 認証
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-    # 3. gcloud CLI セットアップ
-    - name: Setup Google Cloud SDK
-      uses: google-github-actions/setup-gcloud@v1
-      with:
-        project_id: tokotoko-prod
+      # 3. gcloud CLI セットアップ
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: tokotoko-prod
 
-    # 4. Docker が Artifact Registry に push できるよう認証
-    - name: Configure Docker for Artifact Registry
-      run: gcloud auth configure-docker asia-northeast1-docker.pkg.dev
+      # 4. Docker が GCR に push できるよう認証
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker
 
-    # 5. Docker ビルド & Push (prod 用 Dockerfile)
-    - name: Build and Push Docker image
-      run: |
-        docker build -f ./back/Dockerfile.prod -t asia-northeast1-docker.pkg.dev/tokotoko-prod/back-repo/back:latest ./back
-        docker push asia-northeast1-docker.pkg.dev/tokotoko-prod/back-repo/back:latest
+      # 5. Docker ビルド & Push (prod 用 Dockerfile)
+      - name: Build and Push Docker image
+        run: |
+          docker build -f ./back/Dockerfile.prod -t gcr.io/tokotoko-prod/back:latest ./back
+          docker push gcr.io/tokotoko-prod/back:latest
 
-    # 6. Cloud Run デプロイ
-    - name: Deploy to Cloud Run
-      run: |
-        gcloud run deploy back \
-          --image asia-northeast1-docker.pkg.dev/tokotoko-prod/back-repo/back:latest \
-          --region asia-northeast1 \
-          --platform managed \
-          --allow-unauthenticated
+      # 6. Cloud Run デプロイ
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy back \
+            --image gcr.io/tokotoko-prod/back:latest \
+            --region asia-northeast1 \
+            --platform managed \
+            --allow-unauthenticated
