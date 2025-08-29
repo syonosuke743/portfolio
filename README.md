@@ -164,8 +164,8 @@ Routes テーブルにはこう記録される：
 | --------------- | ------------ | ----------------- | -------- | -------------------- | ------------- |
 | React (Next.js) | Nest.js      | Cloud Run         | GCE      | Google Place API     | Git,GitHub    |
 | Tailwind CSS    | Prisma       | Cloud SQL         | Docker   | Google Direction API | GitHubActions |
-| TypeScript      | PostgresSQL  | API Gateway       | Ubuntu   | GeoLocation          |
-| API             |              |
+| TypeScript      | PostgresSQL  | API Gateway       | Ubuntu   | GeoLocation API      |
+|                 |
 | Shadcn UI       |              | Artifact Registry |          |                      |               |
 | Next Auth       |              | Cloud Build       |          |                      |               |
 | leaflet.js      |              |                   |          |                      |               |
