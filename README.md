@@ -160,14 +160,15 @@ Routes テーブルにはこう記録される：
 
 # 使用技術
 
-| フロントエンド  | バックエンド | インフラ | 環境構築 | 外部 API             |
-| --------------- | ------------ | -------- | -------- | -------------------- |
-| React (Next.js) | Nest.js      | GCP      | GCE      | Google Place API     |
-| Tailwind CSS    | Prisma       |          | Docker   | Google Direction API |
-| TypeScript      | PostgresSQL  |          | Ubuntu   | GeoLocationAPI       |
-| Shadcn UI       |              |          |          |                      |
-| Next Auth       |              |          |          |                      |
-| leaflet.js      |              |          |          |                      |
+| フロントエンド  | バックエンド | インフラ（GCP）   | 環境構築 | 外部 API             | その他        |
+| --------------- | ------------ | ----------------- | -------- | -------------------- | ------------- |
+| React (Next.js) | Nest.js      | Cloud Run         | GCE      | Google Place API     | Git,GitHub    |
+| Tailwind CSS    | Prisma       | Cloud SQL         | Docker   | Google Direction API | GitHubActions |
+| TypeScript      | PostgresSQL  | API Gateway       | Ubuntu   | GeoLocation          |
+| API             |              |
+| Shadcn UI       |              | Artifact Registry |          |                      |               |
+| Next Auth       |              | Cloud Build       |          |                      |               |
+| leaflet.js      |              |                   |          |                      |               |
 
 # ER 図
 
