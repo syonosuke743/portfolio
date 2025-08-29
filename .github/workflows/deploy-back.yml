@@ -28,21 +28,21 @@ jobs:
         with:
           project_id: tokotoko-prod
 
-      # 4. Docker が Artifact Registry に push できるよう認証
+      # 4. Docker が Artifact Registry に push できるよう認証（US リージョン）
       - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker asia-northeast1-docker.pkg.dev
+        run: gcloud auth configure-docker us-docker.pkg.dev
 
       # 5. Docker ビルド & Push (prod 用 Dockerfile)
       - name: Build and Push Docker image
         run: |
-          docker build -f ./back/Dockerfile.prod -t asia-northeast1-docker.pkg.dev/tokotoko-prod/back/back:latest ./back
-          docker push asia-northeast1-docker.pkg.dev/tokotoko-prod/back/back:latest
+          docker build -f ./back/Dockerfile.prod -t us-docker.pkg.dev/tokotoko-prod/gcr.io/back:latest ./back
+          docker push us-docker.pkg.dev/tokotoko-prod/gcr.io/back:latest
 
       # 6. Cloud Run デプロイ
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy back \
-            --image asia-northeast1-docker.pkg.dev/tokotoko-prod/back/back:latest \
+            --image us-docker.pkg.dev/tokotoko-prod/gcr.io/back:latest \
             --region asia-northeast1 \
             --platform managed \
             --allow-unauthenticated
