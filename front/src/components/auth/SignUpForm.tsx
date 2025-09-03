@@ -1,10 +1,10 @@
 "use client"
 
-import { authApi } from "@/lib/api"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useState } from 'react'
 import { Button } from "../ui/button"
+
 
 const SignUpForm = () => {
 
@@ -26,32 +26,32 @@ const SignUpForm = () => {
             return;
         }
 
+        try {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/register`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password }),
+          });
 
-        try{
-            await authApi.register({email,password});
+          if (!res.ok) throw new Error("アカウント作成に失敗しました");
 
-            //登録成功後、自動でログイン
-            const result = await signIn("credentials",{
-                email,
-                password,
-                redirect: false,
-            });
+          const result = await signIn("credentials", {
+              email,
+              password,
+              redirect: false,
+          });
 
-            console.log('Auto login result:', result);
-
-            if (result?.error){
-                console.error('Auto login error:', result.error);
-                setError("ログインエラー" + result.error)
-            }else{
-                router.push("/home");
-            }
-        }catch (err: any){
-            setError(err.message || "アカウントの作成に失敗しました。")
-        }finally{
-            setIsLoading(false);
-        }
-    };
-
+          if (result?.error) {
+              setError("ログインエラー: " + result.error);
+          } else {
+              router.push("/home");
+          }
+      } catch (err: any) {
+          setError(err.message || "アカウントの作成に失敗しました。");
+      } finally {
+          setIsLoading(false);
+      }
+    }
     const handleGoogleSignUp = () => {
         signIn("google",{callbackUrl: "/home"});
     }
