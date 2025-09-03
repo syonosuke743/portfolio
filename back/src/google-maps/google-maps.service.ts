@@ -65,7 +65,7 @@ export class GoogleMapsService {
         }
     }
 
-    // 通常のPOI検索（改良版）
+    // 通常のPOI検索
     async searchPOI(category: string, location: Coordinates, radius: number = 1000): Promise<POIResult | null> {
         try {
             const includedTypes = [this.mapPOICategory(category)];
@@ -140,7 +140,7 @@ export class GoogleMapsService {
         }
     }
 
-    // より多様性のあるランダムPOI検索
+    // ランダムPOI検索
     async searchRandomPOI(category: string, location: Coordinates, maxDistance: number): Promise<POIResult | null> {
         try {
             const includedTypes = [this.mapPOICategory(category)];

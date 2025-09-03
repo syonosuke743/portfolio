@@ -32,10 +32,4 @@ export class AuthController {
     async googleAuth(@Body() googleAuthDto: GoogleAuthDto){
         return this.authService.googleAuth(googleAuthDto);
     }
-
-    @Get('profile')
-    @UseGuards(AuthGuard('jwt'))
-    async getProfile(@Request() req){
-        return req.user;
-    }
 }

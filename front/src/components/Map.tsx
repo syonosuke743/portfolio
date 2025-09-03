@@ -21,7 +21,9 @@ interface NavigationInfo {
   isNavigating: boolean;
 }
 
-// ポリラインデコード関数
+// ポリライン圧縮関数(googleMapのエンコードポリラインアルゴリズム形式のドキュメントを参考)
+//緯度経度の差分（正負） → 左シフト（符号用空き） → 符号ビット反映 → 下位5ビットずつ分割 → 上位ビットで続き判定 → ASCII文字列
+//文字列 → 整数化 → 上位ビットチェック → 下位5ビット組み合わせ → 右シフト → 符号復元 → 元の差分 → 前座標に足す → 元座標
 const decodePolyline = (encoded: string): LatLngTuple[] => {
   const poly: LatLngTuple[] = [];
   let index = 0;
@@ -62,14 +64,14 @@ const decodePolyline = (encoded: string): LatLngTuple[] => {
 
 // 距離計算（メートル単位）
 const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-  const R = 6371e3;
+  const R = 6371e3;//地球の距離
   const φ1 = lat1 * Math.PI/180;
   const φ2 = lat2 * Math.PI/180;
   const Δφ = (lat2-lat1) * Math.PI/180;
   const Δλ = (lon2-lon1) * Math.PI/180;
 
-  const a = Math.sin(Δφ/2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const a = Math.sin(Δφ/2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) ** 2;//ハーサイン関数
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));//中心角
 
   return R * c;
 };
